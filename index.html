@@ -723,8 +723,27 @@
 
         async function updateStats() {
             const logs = await getLogs();
-            const today = new Date().toISOString().split('T')[0];
-            const todayLogs = logs.filter(log => log.date === today);
+            const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
+            
+            console.log('Updating stats. Today:', today, 'Logs:', logs);
+            
+            // Filter today's logs with better date comparison
+            const todayLogs = logs.filter(log => {
+                let logDate = log.date;
+                
+                // If date is a Date object, convert to YYYY-MM-DD string
+                if (logDate instanceof Date) {
+                    logDate = logDate.toISOString().split('T')[0];
+                } else if (typeof logDate === 'string') {
+                    // If it's already a string, normalize it
+                    logDate = logDate.trim().split('T')[0];
+                }
+                
+                console.log('Comparing:', logDate, '===', today, '?', logDate === today);
+                return logDate === today;
+            });
+            
+            console.log('Today\'s logs:', todayLogs);
 
             // Today's count
             document.getElementById('todayCount').textContent = todayLogs.length;
