@@ -748,7 +748,24 @@
         }
 
         function formatDate(dateString) {
-            const date = new Date(dateString + 'T00:00:00');
+            // Handle both ISO format (2026-02-15) and Date objects
+            if (!dateString) return 'Invalid Date';
+            
+            let date;
+            if (typeof dateString === 'string') {
+                // Parse YYYY-MM-DD format
+                const parts = dateString.split('-');
+                if (parts.length === 3) {
+                    date = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+                } else {
+                    date = new Date(dateString);
+                }
+            } else {
+                date = new Date(dateString);
+            }
+            
+            if (isNaN(date.getTime())) return 'Invalid Date';
+            
             return date.toLocaleDateString('en-US', { 
                 weekday: 'short', 
                 month: 'short', 
@@ -758,11 +775,25 @@
         }
 
         function formatTime(timeString) {
-            const [hours, minutes] = timeString.split(':');
-            const hour = parseInt(hours);
-            const period = hour >= 12 ? 'PM' : 'AM';
-            const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
-            return `${displayHour}:${minutes} ${period}`;
+            // Handle various time formats from Google Sheets
+            if (!timeString) return 'Invalid Time';
+            
+            let hours, minutes;
+            
+            // Handle HH:MM or H:MM format
+            if (typeof timeString === 'string' && timeString.includes(':')) {
+                const parts = timeString.split(':');
+                hours = parseInt(parts[0]);
+                minutes = parseInt(parts[1]);
+            } else {
+                return 'Invalid Time';
+            }
+            
+            if (isNaN(hours) || isNaN(minutes)) return 'Invalid Time';
+            
+            const period = hours >= 12 ? 'PM' : 'AM';
+            const displayHour = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+            return `${displayHour}:${minutes.toString().padStart(2, '0')} ${period}`;
         }
 
         function setDefaultDateTime() {
