@@ -769,16 +769,47 @@
                 
                 // Calculate time since last feed
                 const now = new Date();
-                const lastFeedDate = new Date(lastLog.date + 'T' + lastLog.time);
+                
+                // Parse the date and time properly
+                let lastFeedDate;
+                const dateStr = lastLog.date;
+                const timeStr = lastLog.time;
+                
+                // Handle date - convert from any format to proper Date
+                let datePart;
+                if (dateStr instanceof Date) {
+                    datePart = dateStr;
+                } else if (typeof dateStr === 'string') {
+                    datePart = new Date(dateStr);
+                }
+                
+                // Parse time (HH:MM format)
+                const timeParts = timeStr.toString().replace(/'/g, '').trim().split(':');
+                const hours = parseInt(timeParts[0]);
+                const minutes = parseInt(timeParts[1]) || 0;
+                
+                // Create the full date/time object
+                lastFeedDate = new Date(
+                    datePart.getFullYear(),
+                    datePart.getMonth(),
+                    datePart.getDate(),
+                    hours,
+                    minutes
+                );
+                
+                console.log('Last feed date:', lastFeedDate, 'Now:', now);
+                
                 const diffMs = now - lastFeedDate;
                 const diffMins = Math.floor(diffMs / 60000);
-                const hours = Math.floor(diffMins / 60);
-                const minutes = diffMins % 60;
+                const hoursAgo = Math.floor(diffMins / 60);
+                const minutesAgo = diffMins % 60;
                 
-                if (hours > 0) {
-                    document.getElementById('timeSince').textContent = `${hours}h ${minutes}m`;
+                console.log('Time diff:', hoursAgo, 'hours', minutesAgo, 'minutes');
+                
+                if (hoursAgo > 0) {
+                    document.getElementById('timeSince').textContent = `${hoursAgo}h ${minutesAgo}m`;
                 } else {
-                    document.getElementById('timeSince').textContent = `${minutes}m`;
+                    document.getElementById('timeSince').textContent = `${minutesAgo}m`;
                 }
             } else {
                 document.getElementById('lastFeed').textContent = '--';
