@@ -358,35 +358,20 @@
 
     <script>
         // Check for incoming data from iOS Shortcut
-        window.addEventListener('load', async function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const voiceInput = urlParams.get('voice');
+        window.addEventListener('load', function() {
+            // Check hash fragment (e.g., #voice=120ml)
+            const hash = window.location.hash.substring(1); // Remove the #
+            const hashParams = new URLSearchParams(hash);
+            const voiceFromHash = hashParams.get('voice');
             
-            // Try clipboard first (new method)
-            let clipboardText = null;
-            try {
-                clipboardText = await navigator.clipboard.readText();
-            } catch (err) {
-                console.log('Clipboard access denied or not available');
-            }
+            // Check URL parameters (fallback)
+            const urlParams = new URLSearchParams(window.location.search);
+            const voiceFromURL = urlParams.get('voice');
+            
+            const voiceInput = voiceFromHash || voiceFromURL;
 
-            // Check if clipboard contains a bottle feed log (must have "ml" or "milliliter")
-            if (clipboardText && (clipboardText.toLowerCase().includes('ml') || clipboardText.toLowerCase().includes('milliliter'))) {
-                const parsed = parseVoiceInput(clipboardText);
-                if (parsed.amount) {
-                    saveEntry(parsed);
-                    showStatus(`✓ Logged ${parsed.amount}ml from voice: "${clipboardText}"`);
-                    // Clear clipboard after successful log
-                    try {
-                        await navigator.clipboard.writeText('');
-                    } catch (err) {
-                        // Ignore clipboard clear errors
-                    }
-                } else {
-                    showStatus(`❌ Could not parse amount from: "${clipboardText}"`);
-                }
-            } else if (voiceInput) {
-                // Fallback to URL parameter method
+            if (voiceInput) {
+                // Parse the voice input
                 const parsed = parseVoiceInput(voiceInput);
                 if (parsed.amount) {
                     saveEntry(parsed);
@@ -394,10 +379,10 @@
                 } else {
                     showStatus(`❌ Could not parse amount from: "${voiceInput}"`);
                 }
+                
+                // Clean URL
+                window.history.replaceState({}, document.title, window.location.pathname);
             }
-            
-            // Clean URL
-            window.history.replaceState({}, document.title, window.location.pathname);
         });
 
         function parseVoiceInput(text) {
