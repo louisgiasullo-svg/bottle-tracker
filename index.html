@@ -731,12 +731,21 @@
             const todayLogs = logs.filter(log => {
                 let logDate = log.date;
                 
-                // If date is a Date object, convert to YYYY-MM-DD string
+                // Convert any date format to YYYY-MM-DD
                 if (logDate instanceof Date) {
-                    logDate = logDate.toISOString().split('T')[0];
+                    const year = logDate.getFullYear();
+                    const month = (logDate.getMonth() + 1).toString().padStart(2, '0');
+                    const day = logDate.getDate().toString().padStart(2, '0');
+                    logDate = `${year}-${month}-${day}`;
                 } else if (typeof logDate === 'string') {
-                    // If it's already a string, normalize it
-                    logDate = logDate.trim().split('T')[0];
+                    // Try to parse string as date
+                    const parsed = new Date(logDate);
+                    if (!isNaN(parsed.getTime())) {
+                        const year = parsed.getFullYear();
+                        const month = (parsed.getMonth() + 1).toString().padStart(2, '0');
+                        const day = parsed.getDate().toString().padStart(2, '0');
+                        logDate = `${year}-${month}-${day}`;
+                    }
                 }
                 
                 console.log('Comparing:', logDate, '===', today, '?', logDate === today);
