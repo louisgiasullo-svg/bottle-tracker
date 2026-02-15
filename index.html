@@ -310,8 +310,8 @@
                     <div class="stat-label">Last Feed</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-value" id="avgAmount">0ml</div>
-                    <div class="stat-label">Avg Amount</div>
+                    <div class="stat-value" id="timeSince">--</div>
+                    <div class="stat-label">Time Since Last</div>
                 </div>
             </div>
         </div>
@@ -761,22 +761,37 @@
             const todayTotal = todayLogs.reduce((sum, log) => sum + parseInt(log.amount), 0);
             document.getElementById('todayTotal').textContent = todayTotal + 'ml';
 
-            // Last feed time
+            // Last feed time and time since last feed
             if (logs.length > 0) {
                 const lastLog = logs[0];
                 const lastTime = formatTime(lastLog.time);
                 document.getElementById('lastFeed').textContent = lastTime;
+                
+                // Calculate time since last feed
+                const now = new Date();
+                const lastFeedDate = new Date(lastLog.date + 'T' + lastLog.time);
+                const diffMs = now - lastFeedDate;
+                const diffMins = Math.floor(diffMs / 60000);
+                const hours = Math.floor(diffMins / 60);
+                const minutes = diffMins % 60;
+                
+                if (hours > 0) {
+                    document.getElementById('timeSince').textContent = `${hours}h ${minutes}m`;
+                } else {
+                    document.getElementById('timeSince').textContent = `${minutes}m`;
+                }
             } else {
                 document.getElementById('lastFeed').textContent = '--';
+                document.getElementById('timeSince').textContent = '--';
             }
 
-            // Average amount
-            if (logs.length > 0) {
-                const avgAmount = Math.round(logs.reduce((sum, log) => sum + parseInt(log.amount), 0) / logs.length);
-                document.getElementById('avgAmount').textContent = avgAmount + 'ml';
-            } else {
-                document.getElementById('avgAmount').textContent = '0ml';
-            }
+            // Average amount - removed, keeping for reference
+            // if (logs.length > 0) {
+            //     const avgAmount = Math.round(logs.reduce((sum, log) => sum + parseInt(log.amount), 0) / logs.length);
+            //     document.getElementById('avgAmount').textContent = avgAmount + 'ml';
+            // } else {
+            //     document.getElementById('avgAmount').textContent = '0ml';
+            // }
         }
 
         function showStatus(message) {
