@@ -364,20 +364,24 @@
             const hashParams = new URLSearchParams(hash);
             const voiceFromHash = hashParams.get('voice');
             
-            // Check URL parameters (fallback)
+            // Check URL parameters (multiple possible parameter names)
             const urlParams = new URLSearchParams(window.location.search);
             const voiceFromURL = urlParams.get('voice');
+            const voiceFromTrigger = urlParams.get('trigger');
             
-            const voiceInput = voiceFromHash || voiceFromURL;
+            const voiceInput = voiceFromHash || voiceFromURL || voiceFromTrigger;
 
             if (voiceInput) {
+                // Decode URL encoding if present
+                const decodedInput = decodeURIComponent(voiceInput);
+                
                 // Parse the voice input
-                const parsed = parseVoiceInput(voiceInput);
+                const parsed = parseVoiceInput(decodedInput);
                 if (parsed.amount) {
                     saveEntry(parsed);
-                    showStatus(`✓ Logged ${parsed.amount}ml from voice: "${voiceInput}"`);
+                    showStatus(`✓ Logged ${parsed.amount}ml from voice: "${decodedInput}"`);
                 } else {
-                    showStatus(`❌ Could not parse amount from: "${voiceInput}"`);
+                    showStatus(`❌ Could not parse amount from: "${decodedInput}"`);
                 }
                 
                 // Clean URL
