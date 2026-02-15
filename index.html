@@ -357,6 +357,9 @@
     </div>
 
     <script>
+        // Google Sheets API endpoint
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxpvWLPSczZFjlEpizpy85diLRQXrq3fag0388Glhma3VZiNDIjJBJjeD3AYXrhl2Ws/exec';
+        
         // Check for incoming data from iOS Shortcut
         window.addEventListener('load', function() {
             // Check hash fragment (e.g., #voice=120ml)
@@ -386,6 +389,10 @@
                 
                 // Clean URL
                 window.history.replaceState({}, document.title, window.location.pathname);
+            } else {
+                // Just loading the app - fetch existing data
+                displayLogs();
+                updateStats();
             }
         });
 
@@ -586,23 +593,53 @@
         }
 
         function saveEntry(entry) {
-            const logs = getLogs();
-            logs.unshift({
-                ...entry,
-                timestamp: Date.now()
+            // Add to Google Sheets
+            const data = {
+                action: 'add',
+                date: entry.date,
+                time: entry.time,
+                amount: entry.amount
+            };
+            
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            }).then(() => {
+                // Refresh the display after saving
+                setTimeout(() => {
+                    displayLogs();
+                    updateStats();
+                }, 1000);
+            }).catch(error => {
+                console.error('Error saving entry:', error);
+                showStatus('❌ Error saving feed');
             });
-            localStorage.setItem('bottleLogs', JSON.stringify(logs));
-            displayLogs();
-            updateStats();
         }
 
-        function getLogs() {
-            const logs = localStorage.getItem('bottleLogs');
-            return logs ? JSON.parse(logs) : [];
+        async function getLogs() {
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL);
+                const data = await response.json();
+                
+                if (data.success && data.feeds) {
+                    // Sort by timestamp descending (newest first)
+                    return data.feeds.sort((a, b) => {
+                        return new Date(b.timestamp) - new Date(a.timestamp);
+                    });
+                }
+                return [];
+            } catch (error) {
+                console.error('Error fetching logs:', error);
+                return [];
+            }
         }
 
-        function displayLogs() {
-            const logs = getLogs();
+        async function displayLogs() {
+            const logs = await getLogs();
             const logsList = document.getElementById('logsList');
 
             if (logs.length === 0) {
@@ -612,7 +649,7 @@
 
             logsList.innerHTML = logs.map((log, index) => `
                 <div class="log-entry">
-                    <button class="delete-button" onclick="deleteEntry(${index})">Delete</button>
+                    <button class="delete-button" onclick="deleteEntry('${log.timestamp}')">Delete</button>
                     <div class="log-date">${formatDate(log.date)}</div>
                     <div class="log-details">${log.amount} ml</div>
                     <div class="log-time">Time: ${formatTime(log.time)}</div>
@@ -620,26 +657,61 @@
             `).join('');
         }
 
-        function deleteEntry(index) {
+        function deleteEntry(timestamp) {
             if (confirm('Delete this entry?')) {
-                const logs = getLogs();
-                logs.splice(index, 1);
-                localStorage.setItem('bottleLogs', JSON.stringify(logs));
-                displayLogs();
-                updateStats();
+                const data = {
+                    action: 'delete',
+                    timestamp: timestamp
+                };
+                
+                fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                }).then(() => {
+                    setTimeout(() => {
+                        displayLogs();
+                        updateStats();
+                    }, 1000);
+                }).catch(error => {
+                    console.error('Error deleting entry:', error);
+                });
             }
         }
 
-        function clearAllLogs() {
-            if (confirm('Are you sure you want to clear all logs?')) {
-                localStorage.removeItem('bottleLogs');
-                displayLogs();
-                updateStats();
+        async function clearAllLogs() {
+            if (confirm('Are you sure you want to clear all logs? This will delete data for both you and your wife!')) {
+                const logs = await getLogs();
+                
+                // Delete all entries
+                for (const log of logs) {
+                    const data = {
+                        action: 'delete',
+                        timestamp: log.timestamp
+                    };
+                    
+                    await fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data)
+                    });
+                }
+                
+                setTimeout(() => {
+                    displayLogs();
+                    updateStats();
+                }, 1000);
             }
         }
 
-        function updateStats() {
-            const logs = getLogs();
+        async function updateStats() {
+            const logs = await getLogs();
             const today = new Date().toISOString().split('T')[0];
             const todayLogs = logs.filter(log => log.date === today);
 
@@ -647,7 +719,7 @@
             document.getElementById('todayCount').textContent = todayLogs.length;
 
             // Today's total
-            const todayTotal = todayLogs.reduce((sum, log) => sum + log.amount, 0);
+            const todayTotal = todayLogs.reduce((sum, log) => sum + parseInt(log.amount), 0);
             document.getElementById('todayTotal').textContent = todayTotal + 'ml';
 
             // Last feed time
@@ -661,7 +733,7 @@
 
             // Average amount
             if (logs.length > 0) {
-                const avgAmount = Math.round(logs.reduce((sum, log) => sum + log.amount, 0) / logs.length);
+                const avgAmount = Math.round(logs.reduce((sum, log) => sum + parseInt(log.amount), 0) / logs.length);
                 document.getElementById('avgAmount').textContent = avgAmount + 'ml';
             } else {
                 document.getElementById('avgAmount').textContent = '0ml';
