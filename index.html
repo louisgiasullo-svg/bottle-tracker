@@ -544,6 +544,8 @@
                 time = now.toTimeString().split(' ')[0].substring(0, 5);
             }
 
+            console.log('Parsed voice input:', { text, date, time, amount, timeFound });
+
             return { date, time, amount };
         }
 
@@ -641,20 +643,29 @@
         async function displayLogs() {
             const logs = await getLogs();
             const logsList = document.getElementById('logsList');
+            
+            console.log('Displaying logs:', logs);
 
             if (logs.length === 0) {
                 logsList.innerHTML = '<div class="empty-state">No feeds logged yet</div>';
                 return;
             }
 
-            logsList.innerHTML = logs.map((log, index) => `
-                <div class="log-entry">
-                    <button class="delete-button" onclick="deleteEntry('${log.timestamp}')">Delete</button>
-                    <div class="log-date">${formatDate(log.date)}</div>
-                    <div class="log-details">${log.amount} ml</div>
-                    <div class="log-time">Time: ${formatTime(log.time)}</div>
-                </div>
-            `).join('');
+            logsList.innerHTML = logs.map((log, index) => {
+                console.log('Formatting log:', log);
+                const formattedDate = formatDate(log.date);
+                const formattedTime = formatTime(log.time);
+                console.log('Formatted:', { date: formattedDate, time: formattedTime });
+                
+                return `
+                    <div class="log-entry">
+                        <button class="delete-button" onclick="deleteEntry('${log.timestamp}')">Delete</button>
+                        <div class="log-date">${formattedDate}</div>
+                        <div class="log-details">${log.amount} ml</div>
+                        <div class="log-time">Time: ${formattedTime}</div>
+                    </div>
+                `;
+            }).join('');
         }
 
         function deleteEntry(timestamp) {
