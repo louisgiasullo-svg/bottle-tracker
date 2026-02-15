@@ -358,15 +358,35 @@
 
     <script>
         // Check for incoming data from iOS Shortcut
-        window.addEventListener('load', function() {
+        window.addEventListener('load', async function() {
             const urlParams = new URLSearchParams(window.location.search);
             const voiceInput = urlParams.get('voice');
-            const amount = urlParams.get('amount');
-            const time = urlParams.get('time');
-            const date = urlParams.get('date');
+            
+            // Try clipboard first (new method)
+            let clipboardText = null;
+            try {
+                clipboardText = await navigator.clipboard.readText();
+            } catch (err) {
+                console.log('Clipboard access denied or not available');
+            }
 
-            if (voiceInput) {
-                // Parse the voice input
+            // Check if clipboard contains a bottle feed log (must have "ml" or "milliliter")
+            if (clipboardText && (clipboardText.toLowerCase().includes('ml') || clipboardText.toLowerCase().includes('milliliter'))) {
+                const parsed = parseVoiceInput(clipboardText);
+                if (parsed.amount) {
+                    saveEntry(parsed);
+                    showStatus(`✓ Logged ${parsed.amount}ml from voice: "${clipboardText}"`);
+                    // Clear clipboard after successful log
+                    try {
+                        await navigator.clipboard.writeText('');
+                    } catch (err) {
+                        // Ignore clipboard clear errors
+                    }
+                } else {
+                    showStatus(`❌ Could not parse amount from: "${clipboardText}"`);
+                }
+            } else if (voiceInput) {
+                // Fallback to URL parameter method
                 const parsed = parseVoiceInput(voiceInput);
                 if (parsed.amount) {
                     saveEntry(parsed);
@@ -374,22 +394,10 @@
                 } else {
                     showStatus(`❌ Could not parse amount from: "${voiceInput}"`);
                 }
-                
-                // Clean URL
-                window.history.replaceState({}, document.title, window.location.pathname);
-            } else if (amount) {
-                // Legacy support for pre-parsed data
-                const entry = {
-                    amount: parseInt(amount),
-                    date: date || new Date().toISOString().split('T')[0],
-                    time: time || new Date().toTimeString().split(' ')[0].substring(0, 5)
-                };
-                saveEntry(entry);
-                showStatus(`✓ Logged ${amount}ml from voice input`);
-                
-                // Clean URL
-                window.history.replaceState({}, document.title, window.location.pathname);
             }
+            
+            // Clean URL
+            window.history.replaceState({}, document.title, window.location.pathname);
         });
 
         function parseVoiceInput(text) {
