@@ -397,9 +397,16 @@
         });
 
         function parseVoiceInput(text) {
+            // Get current time in EST - use normal calendar date
             const now = new Date();
-            let date = now.toISOString().split('T')[0];
-            let time = now.toTimeString().split(' ')[0].substring(0, 5);
+            const estTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+            
+            // Use the actual calendar date in EST (changes at midnight)
+            const year = estTime.getFullYear();
+            const month = (estTime.getMonth() + 1).toString().padStart(2, '0');
+            const day = estTime.getDate().toString().padStart(2, '0');
+            let date = `${year}-${month}-${day}`;
+            let time = estTime.toTimeString().split(' ')[0].substring(0, 5);
             let amount = null;
 
             text = text.toLowerCase();
@@ -541,7 +548,7 @@
 
             // Check for "now" keyword
             if (text.includes('now') || text.includes('just now')) {
-                time = now.toTimeString().split(' ')[0].substring(0, 5);
+                time = estTime.toTimeString().split(' ')[0].substring(0, 5);
             }
 
             console.log('Parsed voice input:', { text, date, time, amount, timeFound });
@@ -550,9 +557,16 @@
         }
 
         function quickLog(amount) {
+            // Get current time in EST
             const now = new Date();
-            const date = now.toISOString().split('T')[0];
-            const time = now.toTimeString().split(' ')[0].substring(0, 5);
+            const estTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+            
+            // Use actual calendar date
+            const year = estTime.getFullYear();
+            const month = (estTime.getMonth() + 1).toString().padStart(2, '0');
+            const day = estTime.getDate().toString().padStart(2, '0');
+            const date = `${year}-${month}-${day}`;
+            const time = estTime.toTimeString().split(' ')[0].substring(0, 5);
             
             saveEntry({ date, time, amount });
             showStatus(`✓ Logged ${amount}ml`);
@@ -566,9 +580,16 @@
                 return;
             }
 
+            // Get current time in EST
             const now = new Date();
-            const date = now.toISOString().split('T')[0];
-            const time = now.toTimeString().split(' ')[0].substring(0, 5);
+            const estTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+            
+            // Use actual calendar date
+            const year = estTime.getFullYear();
+            const month = (estTime.getMonth() + 1).toString().padStart(2, '0');
+            const day = estTime.getDate().toString().padStart(2, '0');
+            const date = `${year}-${month}-${day}`;
+            const time = estTime.toTimeString().split(' ')[0].substring(0, 5);
 
             saveEntry({ date, time, amount });
             document.getElementById('manualAmount').value = '';
@@ -723,36 +744,66 @@
 
         async function updateStats() {
             const logs = await getLogs();
-            const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
             
-            console.log('Updating stats. Today:', today, 'Logs:', logs);
+            // Get current time in EST
+            const now = new Date();
+            const estNow = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
             
-            // Filter today's logs with better date comparison
+            // Determine the current "day" (6am EST to 6am EST)
+            // If it's before 6am, we're still in yesterday's "day"
+            let currentDayStart;
+            if (estNow.getHours() < 6) {
+                // Before 6am - use yesterday at 6am
+                currentDayStart = new Date(estNow);
+                currentDayStart.setDate(currentDayStart.getDate() - 1);
+                currentDayStart.setHours(6, 0, 0, 0);
+            } else {
+                // After 6am - use today at 6am
+                currentDayStart = new Date(estNow);
+                currentDayStart.setHours(6, 0, 0, 0);
+            }
+            
+            const currentDayEnd = new Date(currentDayStart);
+            currentDayEnd.setDate(currentDayEnd.getDate() + 1);
+            
+            console.log('Current day range (EST):', currentDayStart, 'to', currentDayEnd);
+            console.log('Logs:', logs);
+            
+            // Filter logs within the current 6am-6am window
             const todayLogs = logs.filter(log => {
-                let logDate = log.date;
+                // Parse log date and time
+                let logDateTime;
+                const dateStr = log.date;
+                const timeStr = log.time;
                 
-                // Convert any date format to YYYY-MM-DD
-                if (logDate instanceof Date) {
-                    const year = logDate.getFullYear();
-                    const month = (logDate.getMonth() + 1).toString().padStart(2, '0');
-                    const day = logDate.getDate().toString().padStart(2, '0');
-                    logDate = `${year}-${month}-${day}`;
-                } else if (typeof logDate === 'string') {
-                    // Try to parse string as date
-                    const parsed = new Date(logDate);
-                    if (!isNaN(parsed.getTime())) {
-                        const year = parsed.getFullYear();
-                        const month = (parsed.getMonth() + 1).toString().padStart(2, '0');
-                        const day = parsed.getDate().toString().padStart(2, '0');
-                        logDate = `${year}-${month}-${day}`;
-                    }
+                // Handle date
+                let datePart;
+                if (dateStr instanceof Date) {
+                    datePart = dateStr;
+                } else if (typeof dateStr === 'string') {
+                    datePart = new Date(dateStr + 'T00:00:00');
                 }
                 
-                console.log('Comparing:', logDate, '===', today, '?', logDate === today);
-                return logDate === today;
+                // Parse time (HH:MM format)
+                const timeParts = timeStr.toString().replace(/'/g, '').trim().split(':');
+                const hours = parseInt(timeParts[0]);
+                const minutes = parseInt(timeParts[1]) || 0;
+                
+                // Create full datetime in EST
+                logDateTime = new Date(
+                    datePart.getFullYear(),
+                    datePart.getMonth(),
+                    datePart.getDate(),
+                    hours,
+                    minutes
+                );
+                
+                const isInRange = logDateTime >= currentDayStart && logDateTime < currentDayEnd;
+                console.log('Log:', logDateTime, 'in range?', isInRange);
+                return isInRange;
             });
             
-            console.log('Today\'s logs:', todayLogs);
+            console.log('Today\'s logs (6am-6am):', todayLogs);
 
             // Today's count
             document.getElementById('todayCount').textContent = todayLogs.length;
@@ -767,8 +818,8 @@
                 const lastTime = formatTime(lastLog.time);
                 document.getElementById('lastFeed').textContent = lastTime;
                 
-                // Calculate time since last feed
-                const now = new Date();
+                // Calculate time since last feed (using EST)
+                const estNow = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
                 
                 // Parse the date and time properly
                 let lastFeedDate;
@@ -797,9 +848,9 @@
                     minutes
                 );
                 
-                console.log('Last feed date:', lastFeedDate, 'Now:', now);
+                console.log('Last feed date:', lastFeedDate, 'Now (EST):', estNow);
                 
-                const diffMs = now - lastFeedDate;
+                const diffMs = estNow - lastFeedDate;
                 const diffMins = Math.floor(diffMs / 60000);
                 const hoursAgo = Math.floor(diffMins / 60);
                 const minutesAgo = diffMins % 60;
