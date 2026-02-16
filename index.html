@@ -819,33 +819,68 @@
             
             // Filter logs within the current 6am-6am window
             const todayLogs = logs.filter(log => {
+                console.log('Processing log:', log);
+                
                 // Parse log date and time
                 const dateStr = log.date;
                 const timeStr = log.time;
                 
-                // Parse date (YYYY-MM-DD)
+                console.log('Date string:', dateStr, 'Type:', typeof dateStr);
+                console.log('Time string:', timeStr, 'Type:', typeof timeStr);
+                
+                // Parse date (YYYY-MM-DD or Date object)
                 let logYear, logMonth, logDay;
                 if (dateStr instanceof Date) {
                     logYear = dateStr.getFullYear();
                     logMonth = dateStr.getMonth();
                     logDay = dateStr.getDate();
                 } else if (typeof dateStr === 'string') {
-                    const dateParts = dateStr.split('-');
-                    logYear = parseInt(dateParts[0]);
-                    logMonth = parseInt(dateParts[1]) - 1; // Month is 0-indexed
-                    logDay = parseInt(dateParts[2]);
+                    // Handle "Sun Feb 15 2026..." format
+                    const parsed = new Date(dateStr);
+                    if (!isNaN(parsed.getTime())) {
+                        logYear = parsed.getFullYear();
+                        logMonth = parsed.getMonth();
+                        logDay = parsed.getDate();
+                    } else {
+                        // Try YYYY-MM-DD format
+                        const dateParts = dateStr.split('-');
+                        if (dateParts.length === 3) {
+                            logYear = parseInt(dateParts[0]);
+                            logMonth = parseInt(dateParts[1]) - 1; // Month is 0-indexed
+                            logDay = parseInt(dateParts[2]);
+                        } else {
+                            console.error('Cannot parse date:', dateStr);
+                            return false;
+                        }
+                    }
+                } else {
+                    console.error('Unknown date type:', dateStr);
+                    return false;
                 }
                 
-                // Parse time (HH:MM format)
-                const timeParts = timeStr.toString().replace(/'/g, '').trim().split(':');
+                // Parse time (HH:MM format or "HH:MM:SS" or time with apostrophe)
+                let timeString = timeStr.toString().replace(/'/g, '').trim();
+                // Remove seconds if present (13:00:00 -> 13:00)
+                if (timeString.includes(':')) {
+                    const parts = timeString.split(':');
+                    timeString = `${parts[0]}:${parts[1]}`;
+                }
+                
+                const timeParts = timeString.split(':');
                 const logHours = parseInt(timeParts[0]);
                 const logMinutes = parseInt(timeParts[1]) || 0;
+                
+                console.log('Parsed:', {logYear, logMonth, logDay, logHours, logMinutes});
                 
                 // Create datetime object
                 const logDateTime = new Date(logYear, logMonth, logDay, logHours, logMinutes);
                 
+                console.log('Log datetime:', logDateTime);
+                console.log('Current day start:', currentDayStart);
+                console.log('Current day end:', currentDayEnd);
+                
                 const isInRange = logDateTime >= currentDayStart && logDateTime < currentDayEnd;
-                console.log('Log:', logDateTime, 'in range?', isInRange);
+                console.log('In range?', isInRange);
                 return isInRange;
             });
             
@@ -868,6 +903,8 @@
                 const dateStr = lastLog.date;
                 const timeStr = lastLog.time;
                 
+                console.log('Last log date:', dateStr, 'time:', timeStr);
+                
                 // Parse date
                 let logYear, logMonth, logDay;
                 if (dateStr instanceof Date) {
@@ -875,14 +912,29 @@
                     logMonth = dateStr.getMonth();
                     logDay = dateStr.getDate();
                 } else if (typeof dateStr === 'string') {
-                    const dateParts = dateStr.split('-');
-                    logYear = parseInt(dateParts[0]);
-                    logMonth = parseInt(dateParts[1]) - 1;
-                    logDay = parseInt(dateParts[2]);
+                    // Handle "Sun Feb 15 2026..." format
+                    const parsed = new Date(dateStr);
+                    if (!isNaN(parsed.getTime())) {
+                        logYear = parsed.getFullYear();
+                        logMonth = parsed.getMonth();
+                        logDay = parsed.getDate();
+                    } else {
+                        // Try YYYY-MM-DD format
+                        const dateParts = dateStr.split('-');
+                        logYear = parseInt(dateParts[0]);
+                        logMonth = parseInt(dateParts[1]) - 1;
+                        logDay = parseInt(dateParts[2]);
+                    }
                 }
                 
-                // Parse time
-                const timeParts = timeStr.toString().replace(/'/g, '').trim().split(':');
+                // Parse time - handle HH:MM or HH:MM:SS
+                let timeString = timeStr.toString().replace(/'/g, '').trim();
+                if (timeString.includes(':')) {
+                    const parts = timeString.split(':');
+                    timeString = `${parts[0]}:${parts[1]}`;
+                }
+                
+                const timeParts = timeString.split(':');
                 const logHours = parseInt(timeParts[0]);
                 const logMinutes = parseInt(timeParts[1]) || 0;
                 
