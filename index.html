@@ -828,44 +828,27 @@
                 console.log('Date string:', dateStr, 'Type:', typeof dateStr);
                 console.log('Time string:', timeStr, 'Type:', typeof timeStr);
                 
-                // Parse date (YYYY-MM-DD or Date object)
-                let logYear, logMonth, logDay;
+                // Parse date - handle full GMT string or YYYY-MM-DD
+                let logDate;
                 if (dateStr instanceof Date) {
-                    logYear = dateStr.getFullYear();
-                    logMonth = dateStr.getMonth();
-                    logDay = dateStr.getDate();
+                    logDate = dateStr;
                 } else if (typeof dateStr === 'string') {
-                    // Handle "Sun Feb 15 2026..." format
-                    const parsed = new Date(dateStr);
-                    if (!isNaN(parsed.getTime())) {
-                        logYear = parsed.getFullYear();
-                        logMonth = parsed.getMonth();
-                        logDay = parsed.getDate();
-                    } else {
-                        // Try YYYY-MM-DD format
-                        const dateParts = dateStr.split('-');
-                        if (dateParts.length === 3) {
-                            logYear = parseInt(dateParts[0]);
-                            logMonth = parseInt(dateParts[1]) - 1; // Month is 0-indexed
-                            logDay = parseInt(dateParts[2]);
-                        } else {
-                            console.error('Cannot parse date:', dateStr);
-                            return false;
-                        }
-                    }
-                } else {
-                    console.error('Unknown date type:', dateStr);
+                    // Parse the date string (handles both "Sun Feb 15 2026..." and "2026-02-15")
+                    logDate = new Date(dateStr);
+                }
+                
+                if (!logDate || isNaN(logDate.getTime())) {
+                    console.error('Cannot parse date:', dateStr);
                     return false;
                 }
                 
-                // Parse time (HH:MM format or "HH:MM:SS" or time with apostrophe)
+                const logYear = logDate.getFullYear();
+                const logMonth = logDate.getMonth();
+                const logDay = logDate.getDate();
+                
+                // Parse time (HH:MM format, may have seconds or apostrophe)
                 let timeString = timeStr.toString().replace(/'/g, '').trim();
                 // Remove seconds if present (13:00:00 -> 13:00)
-                if (timeString.includes(':')) {
-                    const parts = timeString.split(':');
-                    timeString = `${parts[0]}:${parts[1]}`;
-                }
-                
                 const timeParts = timeString.split(':');
                 const logHours = parseInt(timeParts[0]);
                 const logMinutes = parseInt(timeParts[1]) || 0;
@@ -905,54 +888,43 @@
                 
                 console.log('Last log date:', dateStr, 'time:', timeStr);
                 
-                // Parse date
-                let logYear, logMonth, logDay;
+                // Parse date - handle full GMT string
+                let logDate;
                 if (dateStr instanceof Date) {
-                    logYear = dateStr.getFullYear();
-                    logMonth = dateStr.getMonth();
-                    logDay = dateStr.getDate();
+                    logDate = dateStr;
                 } else if (typeof dateStr === 'string') {
-                    // Handle "Sun Feb 15 2026..." format
-                    const parsed = new Date(dateStr);
-                    if (!isNaN(parsed.getTime())) {
-                        logYear = parsed.getFullYear();
-                        logMonth = parsed.getMonth();
-                        logDay = parsed.getDate();
-                    } else {
-                        // Try YYYY-MM-DD format
-                        const dateParts = dateStr.split('-');
-                        logYear = parseInt(dateParts[0]);
-                        logMonth = parseInt(dateParts[1]) - 1;
-                        logDay = parseInt(dateParts[2]);
-                    }
+                    logDate = new Date(dateStr);
                 }
                 
-                // Parse time - handle HH:MM or HH:MM:SS
-                let timeString = timeStr.toString().replace(/'/g, '').trim();
-                if (timeString.includes(':')) {
-                    const parts = timeString.split(':');
-                    timeString = `${parts[0]}:${parts[1]}`;
-                }
-                
-                const timeParts = timeString.split(':');
-                const logHours = parseInt(timeParts[0]);
-                const logMinutes = parseInt(timeParts[1]) || 0;
-                
-                const lastFeedDate = new Date(logYear, logMonth, logDay, logHours, logMinutes);
-                
-                console.log('Last feed date:', lastFeedDate, 'Now (EST):', estNow);
-                
-                const diffMs = estNow - lastFeedDate;
-                const diffMins = Math.floor(diffMs / 60000);
-                const hoursAgo = Math.floor(diffMins / 60);
-                const minutesAgo = diffMins % 60;
-                
-                console.log('Time diff:', hoursAgo, 'hours', minutesAgo, 'minutes');
-                
-                if (hoursAgo > 0) {
-                    document.getElementById('timeSince').textContent = `${hoursAgo}h ${minutesAgo}m`;
+                if (!logDate || isNaN(logDate.getTime())) {
+                    console.error('Cannot parse last feed date:', dateStr);
+                    document.getElementById('timeSince').textContent = '--';
                 } else {
-                    document.getElementById('timeSince').textContent = `${minutesAgo}m`;
+                    const logYear = logDate.getFullYear();
+                    const logMonth = logDate.getMonth();
+                    const logDay = logDate.getDate();
+                    
+                    // Parse time - handle HH:MM or HH:MM:SS
+                    const timeParts = timeStr.toString().replace(/'/g, '').trim().split(':');
+                    const logHours = parseInt(timeParts[0]);
+                    const logMinutes = parseInt(timeParts[1]) || 0;
+                    
+                    const lastFeedDate = new Date(logYear, logMonth, logDay, logHours, logMinutes);
+                    
+                    console.log('Last feed date:', lastFeedDate, 'Now (EST):', estNow);
+                    
+                    const diffMs = estNow - lastFeedDate;
+                    const diffMins = Math.floor(diffMs / 60000);
+                    const hoursAgo = Math.floor(diffMins / 60);
+                    const minutesAgo = diffMins % 60;
+                    
+                    console.log('Time diff:', hoursAgo, 'hours', minutesAgo, 'minutes');
+                    
+                    if (hoursAgo > 0) {
+                        document.getElementById('timeSince').textContent = `${hoursAgo}h ${minutesAgo}m`;
+                    } else {
+                        document.getElementById('timeSince').textContent = `${minutesAgo}m`;
+                    }
                 }
             } else {
                 document.getElementById('lastFeed').textContent = '--';
