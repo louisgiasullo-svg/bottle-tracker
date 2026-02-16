@@ -397,16 +397,27 @@
         });
 
         function parseVoiceInput(text) {
-            // Get current time in EST - use normal calendar date
+            // Get current time in EST properly
             const now = new Date();
-            const estTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+            const estFormatter = new Intl.DateTimeFormat('en-US', {
+                timeZone: 'America/New_York',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
             
-            // Use the actual calendar date in EST (changes at midnight)
-            const year = estTime.getFullYear();
-            const month = (estTime.getMonth() + 1).toString().padStart(2, '0');
-            const day = estTime.getDate().toString().padStart(2, '0');
+            const parts = estFormatter.formatToParts(now);
+            const year = parts.find(p => p.type === 'year').value;
+            const month = parts.find(p => p.type === 'month').value;
+            const day = parts.find(p => p.type === 'day').value;
+            const hour = parts.find(p => p.type === 'hour').value;
+            const minute = parts.find(p => p.type === 'minute').value;
+            
             let date = `${year}-${month}-${day}`;
-            let time = estTime.toTimeString().split(' ')[0].substring(0, 5);
+            let time = `${hour}:${minute}`;
             let amount = null;
 
             text = text.toLowerCase();
@@ -548,7 +559,7 @@
 
             // Check for "now" keyword
             if (text.includes('now') || text.includes('just now')) {
-                time = estTime.toTimeString().split(' ')[0].substring(0, 5);
+                time = `${hour}:${minute}`;
             }
 
             console.log('Parsed voice input:', { text, date, time, amount, timeFound });
@@ -557,16 +568,27 @@
         }
 
         function quickLog(amount) {
-            // Get current time in EST
+            // Get current time in EST properly
             const now = new Date();
-            const estTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+            const estFormatter = new Intl.DateTimeFormat('en-US', {
+                timeZone: 'America/New_York',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
             
-            // Use actual calendar date
-            const year = estTime.getFullYear();
-            const month = (estTime.getMonth() + 1).toString().padStart(2, '0');
-            const day = estTime.getDate().toString().padStart(2, '0');
+            const parts = estFormatter.formatToParts(now);
+            const year = parts.find(p => p.type === 'year').value;
+            const month = parts.find(p => p.type === 'month').value;
+            const day = parts.find(p => p.type === 'day').value;
+            const hour = parts.find(p => p.type === 'hour').value;
+            const minute = parts.find(p => p.type === 'minute').value;
+            
             const date = `${year}-${month}-${day}`;
-            const time = estTime.toTimeString().split(' ')[0].substring(0, 5);
+            const time = `${hour}:${minute}`;
             
             saveEntry({ date, time, amount });
             showStatus(`✓ Logged ${amount}ml`);
@@ -580,16 +602,27 @@
                 return;
             }
 
-            // Get current time in EST
+            // Get current time in EST properly
             const now = new Date();
-            const estTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+            const estFormatter = new Intl.DateTimeFormat('en-US', {
+                timeZone: 'America/New_York',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
             
-            // Use actual calendar date
-            const year = estTime.getFullYear();
-            const month = (estTime.getMonth() + 1).toString().padStart(2, '0');
-            const day = estTime.getDate().toString().padStart(2, '0');
+            const parts = estFormatter.formatToParts(now);
+            const year = parts.find(p => p.type === 'year').value;
+            const month = parts.find(p => p.type === 'month').value;
+            const day = parts.find(p => p.type === 'day').value;
+            const hour = parts.find(p => p.type === 'hour').value;
+            const minute = parts.find(p => p.type === 'minute').value;
+            
             const date = `${year}-${month}-${day}`;
-            const time = estTime.toTimeString().split(' ')[0].substring(0, 5);
+            const time = `${hour}:${minute}`;
 
             saveEntry({ date, time, amount });
             document.getElementById('manualAmount').value = '';
@@ -745,58 +778,71 @@
         async function updateStats() {
             const logs = await getLogs();
             
-            // Get current time in EST
+            // Get current time in EST properly
             const now = new Date();
-            const estNow = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+            const estFormatter = new Intl.DateTimeFormat('en-US', {
+                timeZone: 'America/New_York',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
             
-            // Determine the current "day" (6am EST to 6am EST)
-            // If it's before 6am, we're still in yesterday's "day"
+            const parts = estFormatter.formatToParts(now);
+            const year = parseInt(parts.find(p => p.type === 'year').value);
+            const month = parseInt(parts.find(p => p.type === 'month').value);
+            const day = parseInt(parts.find(p => p.type === 'day').value);
+            const currentHour = parseInt(parts.find(p => p.type === 'hour').value);
+            const currentMinute = parseInt(parts.find(p => p.type === 'minute').value);
+            
+            // Create EST Date object for current time
+            const estNow = new Date(year, month - 1, day, currentHour, currentMinute);
+            
+            // Determine the current "day" window (6am EST to 6am EST)
             let currentDayStart;
-            if (estNow.getHours() < 6) {
+            if (currentHour < 6) {
                 // Before 6am - use yesterday at 6am
-                currentDayStart = new Date(estNow);
-                currentDayStart.setDate(currentDayStart.getDate() - 1);
-                currentDayStart.setHours(6, 0, 0, 0);
+                currentDayStart = new Date(year, month - 1, day - 1, 6, 0, 0, 0);
             } else {
                 // After 6am - use today at 6am
-                currentDayStart = new Date(estNow);
-                currentDayStart.setHours(6, 0, 0, 0);
+                currentDayStart = new Date(year, month - 1, day, 6, 0, 0, 0);
             }
             
             const currentDayEnd = new Date(currentDayStart);
             currentDayEnd.setDate(currentDayEnd.getDate() + 1);
             
-            console.log('Current day range (EST):', currentDayStart, 'to', currentDayEnd);
+            console.log('Current time (EST):', estNow);
+            console.log('Current day range (6am-6am EST):', currentDayStart, 'to', currentDayEnd);
             console.log('Logs:', logs);
             
             // Filter logs within the current 6am-6am window
             const todayLogs = logs.filter(log => {
                 // Parse log date and time
-                let logDateTime;
                 const dateStr = log.date;
                 const timeStr = log.time;
                 
-                // Handle date
-                let datePart;
+                // Parse date (YYYY-MM-DD)
+                let logYear, logMonth, logDay;
                 if (dateStr instanceof Date) {
-                    datePart = dateStr;
+                    logYear = dateStr.getFullYear();
+                    logMonth = dateStr.getMonth();
+                    logDay = dateStr.getDate();
                 } else if (typeof dateStr === 'string') {
-                    datePart = new Date(dateStr + 'T00:00:00');
+                    const dateParts = dateStr.split('-');
+                    logYear = parseInt(dateParts[0]);
+                    logMonth = parseInt(dateParts[1]) - 1; // Month is 0-indexed
+                    logDay = parseInt(dateParts[2]);
                 }
                 
                 // Parse time (HH:MM format)
                 const timeParts = timeStr.toString().replace(/'/g, '').trim().split(':');
-                const hours = parseInt(timeParts[0]);
-                const minutes = parseInt(timeParts[1]) || 0;
+                const logHours = parseInt(timeParts[0]);
+                const logMinutes = parseInt(timeParts[1]) || 0;
                 
-                // Create full datetime in EST
-                logDateTime = new Date(
-                    datePart.getFullYear(),
-                    datePart.getMonth(),
-                    datePart.getDate(),
-                    hours,
-                    minutes
-                );
+                // Create datetime object
+                const logDateTime = new Date(logYear, logMonth, logDay, logHours, logMinutes);
                 
                 const isInRange = logDateTime >= currentDayStart && logDateTime < currentDayEnd;
                 console.log('Log:', logDateTime, 'in range?', isInRange);
@@ -818,35 +864,29 @@
                 const lastTime = formatTime(lastLog.time);
                 document.getElementById('lastFeed').textContent = lastTime;
                 
-                // Calculate time since last feed (using EST)
-                const estNow = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
-                
-                // Parse the date and time properly
-                let lastFeedDate;
+                // Calculate time since last feed using EST
                 const dateStr = lastLog.date;
                 const timeStr = lastLog.time;
                 
-                // Handle date - convert from any format to proper Date
-                let datePart;
+                // Parse date
+                let logYear, logMonth, logDay;
                 if (dateStr instanceof Date) {
-                    datePart = dateStr;
+                    logYear = dateStr.getFullYear();
+                    logMonth = dateStr.getMonth();
+                    logDay = dateStr.getDate();
                 } else if (typeof dateStr === 'string') {
-                    datePart = new Date(dateStr);
+                    const dateParts = dateStr.split('-');
+                    logYear = parseInt(dateParts[0]);
+                    logMonth = parseInt(dateParts[1]) - 1;
+                    logDay = parseInt(dateParts[2]);
                 }
                 
-                // Parse time (HH:MM format)
+                // Parse time
                 const timeParts = timeStr.toString().replace(/'/g, '').trim().split(':');
-                const hours = parseInt(timeParts[0]);
-                const minutes = parseInt(timeParts[1]) || 0;
+                const logHours = parseInt(timeParts[0]);
+                const logMinutes = parseInt(timeParts[1]) || 0;
                 
-                // Create the full date/time object
-                lastFeedDate = new Date(
-                    datePart.getFullYear(),
-                    datePart.getMonth(),
-                    datePart.getDate(),
-                    hours,
-                    minutes
-                );
+                const lastFeedDate = new Date(logYear, logMonth, logDay, logHours, logMinutes);
                 
                 console.log('Last feed date:', lastFeedDate, 'Now (EST):', estNow);
                 
