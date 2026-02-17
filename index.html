@@ -52,80 +52,77 @@
             font-size: 18px;
         }
 
-        .quick-amounts {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-bottom: 25px;
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 5px;
         }
 
-        .quick-btn {
+        .history-table thead tr {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            border: none;
-            padding: 24px;
-            border-radius: 12px;
-            font-size: 22px;
+        }
+
+        .history-table thead th {
+            padding: 12px 10px;
+            font-size: 13px;
             font-weight: 600;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
-            transition: transform 0.1s, box-shadow 0.1s;
-        }
-
-        .quick-btn:active {
-            transform: scale(0.95);
-            box-shadow: 0 2px 5px rgba(102, 126, 234, 0.3);
-        }
-
-        .manual-section {
-            padding-top: 20px;
-            border-top: 2px solid #f3f4f6;
-        }
-
-        .manual-section h4 {
-            color: #667eea;
-            font-size: 16px;
-            margin-bottom: 15px;
             text-align: center;
+            letter-spacing: 0.5px;
         }
 
-        .quick-entry {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
+        .history-table thead th:first-child {
+            text-align: left;
+            border-radius: 10px 0 0 0;
         }
 
-        .quick-entry input {
-            flex: 2;
-            padding: 14px;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            font-size: 16px;
+        .history-table thead th:last-child {
+            border-radius: 0 10px 0 0;
         }
 
-        .quick-entry input:focus {
-            outline: none;
-            border-color: #667eea;
+        .history-table tbody tr {
+            border-bottom: 1px solid #f3f4f6;
+            transition: background 0.15s;
         }
 
-        .quick-entry button {
-            flex: 1;
-            background: #10b981;
-            color: white;
-            border: none;
-            padding: 14px;
-            border-radius: 8px;
-            font-size: 16px;
+        .history-table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .history-table tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .history-table tbody td {
+            padding: 13px 10px;
+            font-size: 15px;
+            text-align: center;
+            color: #374151;
+        }
+
+        .history-table tbody td:first-child {
+            text-align: left;
             font-weight: 600;
-            cursor: pointer;
+            color: #667eea;
+            font-size: 14px;
         }
 
-        .quick-entry button:active {
-            background: #059669;
+        .history-table .total-ml {
+            font-weight: 700;
+            color: #374151;
+            font-size: 16px;
         }
 
-        details {
-            margin-top: 15px;
+        .history-table .feed-count {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .history-empty {
+            text-align: center;
+            color: #9ca3af;
+            font-size: 14px;
+            padding: 8px 0;
         }
 
         details summary {
@@ -189,16 +186,44 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
 
+        .logs-section details {
+            cursor: pointer;
+        }
+
+        .logs-section details[open] summary {
+            margin-bottom: 20px;
+        }
+
         .logs-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            list-style: none;
+            position: relative;
+        }
+
+        .logs-header::-webkit-details-marker,
+        .logs-header::marker {
+            display: none;
+        }
+
+        .logs-header::before {
+            content: '▼';
+            position: absolute;
+            left: -5px;
+            color: #667eea;
+            font-size: 12px;
+            transition: transform 0.2s;
+        }
+
+        details:not([open]) .logs-header::before {
+            content: '▶';
         }
 
         .logs-header h2 {
             font-size: 20px;
             color: #333;
+            margin-left: 15px;
         }
 
         .clear-button {
@@ -317,42 +342,29 @@
         </div>
         
         <div class="record-section">
-            <h3>Quick Log</h3>
-            
-            <div class="quick-amounts">
-                <button class="quick-btn" onclick="quickLog(45)">45ml</button>
-                <button class="quick-btn" onclick="quickLog(70)">70ml</button>
-                <button class="quick-btn" onclick="quickLog(130)">130ml</button>
-                <button class="quick-btn" onclick="quickLog(180)">180ml</button>
-            </div>
-
-            <div class="manual-section">
-                <h4>Manual Entry</h4>
-                
-                <div class="quick-entry">
-                    <input type="number" id="manualAmount" placeholder="Amount (ml)" inputmode="numeric">
-                    <button onclick="addQuickEntry()">Log Now</button>
-                </div>
-
-                <details>
-                    <summary>Advanced: Edit Date/Time</summary>
-                    <div class="advanced-inputs">
-                        <input type="date" id="manualDate" placeholder="Date">
-                        <input type="time" id="manualTime" placeholder="Time">
-                        <button class="add-button" onclick="addManualEntry()">Add with Custom Date/Time</button>
-                    </div>
-                </details>
-            </div>
-
-            <div class="status" id="status"></div>
+            <h3>Last 6 Days</h3>
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Feeds</th>
+                        <th>Total (ml)</th>
+                    </tr>
+                </thead>
+                <tbody id="historyTableBody">
+                    <tr><td colspan="3" class="history-empty">Loading...</td></tr>
+                </tbody>
+            </table>
         </div>
 
         <div class="logs-section">
-            <div class="logs-header">
-                <h2>Feed Log</h2>
-                <button class="clear-button" onclick="clearAllLogs()">Clear All</button>
-            </div>
-            <div id="logsList"></div>
+            <details open>
+                <summary class="logs-header">
+                    <h2>Feed Log</h2>
+                    <button class="clear-button" onclick="clearAllLogs()">Clear All</button>
+                </summary>
+                <div id="logsList"></div>
+            </details>
         </div>
     </div>
 
@@ -393,6 +405,7 @@
                 // Just loading the app - fetch existing data
                 displayLogs();
                 updateStats();
+                buildHistoryTable();
             }
         });
 
@@ -567,8 +580,11 @@
             return { date, time, amount };
         }
 
-        function quickLog(amount) {
-            // Get current time in EST properly
+        async function buildHistoryTable() {
+            const logs = await getLogs();
+            const tbody = document.getElementById('historyTableBody');
+
+            // Get EST formatter
             const now = new Date();
             const estFormatter = new Intl.DateTimeFormat('en-US', {
                 timeZone: 'America/New_York',
@@ -579,54 +595,77 @@
                 minute: '2-digit',
                 hour12: false
             });
-            
+
             const parts = estFormatter.formatToParts(now);
-            const year = parts.find(p => p.type === 'year').value;
-            const month = parts.find(p => p.type === 'month').value;
-            const day = parts.find(p => p.type === 'day').value;
-            const hour = parts.find(p => p.type === 'hour').value;
-            const minute = parts.find(p => p.type === 'minute').value;
-            
-            const date = `${year}-${month}-${day}`;
-            const time = `${hour}:${minute}`;
-            
-            saveEntry({ date, time, amount });
-            showStatus(`✓ Logged ${amount}ml`);
-        }
+            const year = parseInt(parts.find(p => p.type === 'year').value);
+            const month = parseInt(parts.find(p => p.type === 'month').value);
+            const day = parseInt(parts.find(p => p.type === 'day').value);
+            const currentHour = parseInt(parts.find(p => p.type === 'hour').value);
 
-        function addQuickEntry() {
-            const amount = parseInt(document.getElementById('manualAmount').value);
+            // Calculate the start of the CURRENT 6am-6am window
+            let currentWindowStart;
+            if (currentHour < 6) {
+                currentWindowStart = new Date(year, month - 1, day - 1, 6, 0, 0, 0);
+            } else {
+                currentWindowStart = new Date(year, month - 1, day, 6, 0, 0, 0);
+            }
 
-            if (!amount) {
-                alert('Please enter an amount');
+            // Build 6 previous day windows (going back from the day before current)
+            const rows = [];
+            for (let i = 1; i <= 6; i++) {
+                const windowEnd = new Date(currentWindowStart);
+                windowEnd.setDate(windowEnd.getDate() - (i - 1));
+                const windowStart = new Date(windowEnd);
+                windowStart.setDate(windowStart.getDate() - 1);
+
+                // Filter logs in this window
+                const windowLogs = logs.filter(log => {
+                    const dateStr = log.date;
+                    const timeStr = log.time;
+
+                    let logDate = (dateStr instanceof Date) ? dateStr : new Date(dateStr);
+                    if (isNaN(logDate.getTime())) return false;
+
+                    const timeParts = timeStr.toString().replace(/'/g, '').trim().split(':');
+                    const logHours = parseInt(timeParts[0]);
+                    const logMinutes = parseInt(timeParts[1]) || 0;
+
+                    const logDateTime = new Date(
+                        logDate.getFullYear(),
+                        logDate.getMonth(),
+                        logDate.getDate(),
+                        logHours,
+                        logMinutes
+                    );
+
+                    return logDateTime >= windowStart && logDateTime < windowEnd;
+                });
+
+                const totalMl = windowLogs.reduce((sum, log) => sum + parseInt(log.amount), 0);
+                const feedCount = windowLogs.length;
+
+                // Label the window by its start date
+                const label = windowStart.toLocaleDateString('en-US', {
+                    weekday: 'short',
+                    month: 'short',
+                    day: 'numeric'
+                });
+
+                rows.push({ label, feedCount, totalMl });
+            }
+
+            if (rows.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="history-empty">No history yet</td></tr>';
                 return;
             }
 
-            // Get current time in EST properly
-            const now = new Date();
-            const estFormatter = new Intl.DateTimeFormat('en-US', {
-                timeZone: 'America/New_York',
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: false
-            });
-            
-            const parts = estFormatter.formatToParts(now);
-            const year = parts.find(p => p.type === 'year').value;
-            const month = parts.find(p => p.type === 'month').value;
-            const day = parts.find(p => p.type === 'day').value;
-            const hour = parts.find(p => p.type === 'hour').value;
-            const minute = parts.find(p => p.type === 'minute').value;
-            
-            const date = `${year}-${month}-${day}`;
-            const time = `${hour}:${minute}`;
-
-            saveEntry({ date, time, amount });
-            document.getElementById('manualAmount').value = '';
-            showStatus(`✓ Logged ${amount}ml`);
+            tbody.innerHTML = rows.map(row => `
+                <tr>
+                    <td>${row.label}</td>
+                    <td class="feed-count">${row.feedCount}</td>
+                    <td class="total-ml">${row.totalMl > 0 ? row.totalMl + ' ml' : '--'}</td>
+                </tr>
+            `).join('');
         }
 
         function addManualEntry() {
@@ -669,6 +708,7 @@
                 setTimeout(() => {
                     displayLogs();
                     updateStats();
+                    buildHistoryTable();
                 }, 1000);
             }).catch(error => {
                 console.error('Error saving entry:', error);
@@ -740,6 +780,7 @@
                     setTimeout(() => {
                         displayLogs();
                         updateStats();
+                        buildHistoryTable();
                     }, 1000);
                 }).catch(error => {
                     console.error('Error deleting entry:', error);
@@ -771,6 +812,7 @@
                 setTimeout(() => {
                     displayLogs();
                     updateStats();
+                    buildHistoryTable();
                 }, 1000);
             }
         }
@@ -1006,6 +1048,7 @@
         setDefaultDateTime();
         displayLogs();
         updateStats();
+        buildHistoryTable();
     </script>
 </body>
 </html>
