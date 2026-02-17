@@ -2,6 +2,8 @@
 
 A hands-free baby bottle feeding tracker designed for sleep-deprived parents. Simply press your iPhone's Action Button, speak the feeding details, and the app automatically logs the amount, time, and date to a shared tracker. Built with iOS Shortcuts integration, a progressive web app interface, and Google Sheets backend for real-time data sharing between caregivers. All times are captured in Eastern Standard Time (EST) with a customizable 6am-6am daily tracking window to match real-world feeding schedules.
 
+Features a beautiful soft pastel baby theme with floating clouds and automatic dark mode for nighttime feedings.
+
 ## Features
 
 ### Voice-Activated Logging
@@ -17,11 +19,31 @@ A hands-free baby bottle feeding tracker designed for sleep-deprived parents. Si
 - **Time Since Last Feed**: Live countdown showing hours and minutes since the last feeding
 - **6am-6am Tracking Window**: Stats reset at 6am EST every day to match typical daily feeding cycles
 
-### Quick Manual Entry
-- **One-Tap Buttons**: Pre-configured buttons for common amounts (45ml, 70ml, 130ml, 180ml)
-- **Custom Amount Entry**: Manually enter any amount with optional date/time editing
-- **Advanced Editing**: Tap any feed to edit the date and time if needed
-- **EST Time Capture**: Manual entries are automatically timestamped in Eastern Standard Time
+### 6-Day History View
+- **Historical Overview**: Table showing the last 6 days of feeding data
+- **Feed Counts**: Number of feedings per day
+- **Daily Totals**: Total milliliters consumed each day
+- **Same Tracking Window**: Uses the same 6am-6am EST logic as current stats
+- **Color-Coded Data**: Teal dates, lavender feed counts, coral totals
+
+### Manual Entry Options
+- **Custom Amount Entry**: Manually enter any amount with "Log Now" button
+- **Advanced Editing**: Expandable section for custom date/time input
+- **Quick Access**: Always available below the history table
+
+### Beautiful Pastel Theme
+- **Soft Colors**: Yellow, peach, and lavender gradient background
+- **10 Floating Clouds**: Realistic animated clouds drift across the screen
+- **Rounded Design**: Modern 15-25px rounded corners throughout
+- **Smooth Animations**: Hover effects and transitions on all interactive elements
+- **Gradient Accents**: Purple, pink, coral, and mint green highlights
+
+### Automatic Dark Mode
+- **Time-Based Activation**: Turns on at 8:00 PM EST, off at 6:00 AM EST
+- **Eye Comfort**: Reduces strain during nighttime feedings
+- **Muted Palette**: Deep blue-purple background with soft lavender and pink accents
+- **Dimmed Clouds**: Clouds reduce to 15% opacity at night
+- **Automatic Switching**: Checks every minute to ensure proper timing
 
 ### Shared Data Across Devices
 - **Google Sheets Backend**: All feeding data is stored in a shared Google Sheet
@@ -32,8 +54,9 @@ A hands-free baby bottle feeding tracker designed for sleep-deprived parents. Si
 ### Clean, Mobile-Optimized UI
 - **Progressive Web App**: Add to home screen for a native app-like experience
 - **Responsive Design**: Works perfectly on any iPhone or Android device
-- **Feed History Log**: Scrollable list of all past feedings with delete functionality
-- **Clear All Option**: Reset all data when starting with a new baby or new tracking period
+- **Collapsible Feed Log**: Click header to expand/collapse full feed history
+- **Organized Layout**: Stats → History → Manual Entry → Feed Log
+- **Visual Polish**: Gradient text effects, soft shadows, smooth transitions
 
 ## How It Works
 
@@ -206,7 +229,7 @@ The app intelligently parses natural language input:
 
 ```
 bottle-feed-tracker/
-├── index.html                           # Main web app (use EST-FINAL-FIX version)
+├── index.html                           # Main web app (use PASTEL-WITH-AUTO-DARK-MODE version)
 ├── google-apps-script-STATS-FIXED.js   # Backend API with date/time formatting
 ├── README.md                            # This file
 └── GOOGLE-SHEETS-SETUP-GUIDE.md        # Detailed setup walkthrough
@@ -234,24 +257,68 @@ bottle-feed-tracker/
 - Matches how pediatricians often track daily intake
 - Stats reset at a practical time when baby is likely sleeping
 
+### Why 6-Day History Instead of Quick Buttons?
+- Provides better overview of feeding patterns over time
+- Shows trends and helps identify changes in routine
+- More useful than quick-log buttons for established feeding amounts
+- Manual entry still available for custom amounts
+
+### Why Automatic Dark Mode?
+- Reduces eye strain during nighttime feedings (8pm-6am EST)
+- Softer colors won't wake baby or disrupt sleep
+- Automatic switching means one less thing to think about
+- Dark mode optimized for dim lighting conditions
+
+### Why Pastel Theme with Clouds?
+- Soft, nursery-appropriate aesthetic
+- Gentle colors reduce stress during feeding sessions
+- Floating clouds add whimsy and visual interest
+- Professional look suitable for daily use
+
 ### Customization Options
 Both timezone and daily window can be customized by editing these values in the code:
 - **Timezone**: Change `'America/New_York'` to your desired timezone
 - **Daily Reset Time**: Change `6` in the stats calculation to your preferred hour (0-23)
+- **Dark Mode Hours**: Modify the `checkDarkMode()` function to change activation times
+- **Cloud Count**: Add or remove cloud divs in HTML and corresponding CSS
+- **Theme Colors**: Update gradient values in CSS to match your preference
 
 ## Future Enhancement Ideas
 
-- 📊 Graphs and trends showing feeding patterns over time
-- ⏰ Push notifications for scheduled feedings or overdue feeds
-- 👶 Multi-baby support for twins or multiple children
-- 💊 Medicine and vitamin tracking
-- 🍼 Diaper change logging
+### Multi-Child Dashboard
+- 👶 Support for tracking multiple children
+- 🎨 Color-coded sections per child
+- 📊 Consolidated family view
+
+### Additional Tracking
+- 💊 Medicine and vitamin logging
+- 💤 Sleep tracking (naps and nighttime)
+- 🍽️ Solid food introduction tracker
+- 🚼 Diaper change logs
+- 🌡️ Temperature and illness tracking
+- ⚖️ Weight and height milestones
+- 🦷 Teething tracker
+
+### Analytics & Insights
+- 📈 Graphs showing feeding patterns over time
+- 📊 Weekly/monthly summary reports
+- 📉 Growth charts
+- 🔔 Smart predictions for next feeding time
+- ⚠️ Alerts if baby hasn't fed in X hours
+
+### Family Features
 - 📧 Automated daily/weekly email summaries
-- 📱 Android Quick Settings Tile alternative
-- 🌙 Dark mode for nighttime use
 - 📤 Export to PDF for pediatrician appointments
-- 🌍 Automatic timezone detection with manual override
-- ⚙️ Customizable daily reset time (not locked to 6am)
+- 📅 Appointment and vaccination reminders
+- 👨‍👩‍👧 Shared notes and caregiver handoff
+- 📷 Photo and milestone gallery
+
+### UI Enhancements
+- 🌙 Manual dark mode toggle option
+- 🌍 Automatic timezone detection
+- 📱 Android Quick Settings Tile integration
+- ⚙️ Customizable daily reset time in settings
+- 🎨 Multiple theme options
 
 ## Contributing
 
@@ -267,8 +334,10 @@ Built with love (and severe sleep deprivation) for new parents everywhere. Speci
 
 ---
 
-**Version**: 2.0 (EST + 6am Daily Reset)  
+**Version**: 3.0 (Pastel Theme + Auto Dark Mode)  
 **Last Updated**: February 2026  
 **Tested On**: iPhone 15 Pro, iOS 18+, Chrome & Safari  
 **Timezone**: Eastern Standard Time (EST/EDT)  
-**Daily Window**: 6:00 AM - 6:00 AM EST
+**Daily Window**: 6:00 AM - 6:00 AM EST  
+**Theme**: Soft Pastel Baby with 10 Floating Clouds  
+**Dark Mode**: Auto-activates 8:00 PM - 6:00 AM EST
