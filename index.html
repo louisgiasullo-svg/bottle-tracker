@@ -876,7 +876,7 @@
         </div>
 
         <div class="logs-section">
-            <details open>
+            <details>
                 <summary class="logs-header">
                     <h2>Feed Log</h2>
                     <button class="clear-button" onclick="clearAllLogs()">Clear All</button>
@@ -1181,7 +1181,7 @@
                 <tr>
                     <td>${row.label}</td>
                     <td class="feed-count">${row.feedCount}</td>
-                    <td class="total-ml">${row.totalMl > 0 ? row.totalMl + ' ml' : '--'}</td>
+                    <td class="total-ml">${row.totalMl > 0 ? formatAmount(row.totalMl) : '--'}</td>
                 </tr>
             `).join('');
         }
@@ -1298,7 +1298,30 @@
                 return;
             }
 
-            logsList.innerHTML = logs.map((log, index) => {
+            // Sort logs by date/time - most recent first
+            const sortedLogs = logs.sort((a, b) => {
+                // Parse dates and times
+                const dateA = new Date(a.date);
+                const dateB = new Date(b.date);
+                
+                // Extract hours and minutes from time strings
+                const timePartsA = a.time.toString().replace(/'/g, '').trim().split(':');
+                const timePartsB = b.time.toString().replace(/'/g, '').trim().split(':');
+                
+                const hoursA = parseInt(timePartsA[0]);
+                const minutesA = parseInt(timePartsA[1]) || 0;
+                const hoursB = parseInt(timePartsB[0]);
+                const minutesB = parseInt(timePartsB[1]) || 0;
+                
+                // Create full datetime objects
+                const fullDateA = new Date(dateA.getFullYear(), dateA.getMonth(), dateA.getDate(), hoursA, minutesA);
+                const fullDateB = new Date(dateB.getFullYear(), dateB.getMonth(), dateB.getDate(), hoursB, minutesB);
+                
+                // Sort descending (most recent first)
+                return fullDateB - fullDateA;
+            });
+
+            logsList.innerHTML = sortedLogs.map((log, index) => {
                 console.log('Formatting log:', log);
                 const formattedDate = formatDate(log.date);
                 const formattedTime = formatTime(log.time);
@@ -1308,7 +1331,7 @@
                     <div class="log-entry">
                         <button class="delete-button" onclick="deleteEntry('${log.timestamp}')">Delete</button>
                         <div class="log-date">${formattedDate}</div>
-                        <div class="log-details">${log.amount} ml</div>
+                        <div class="log-details">${formatAmount(log.amount)}</div>
                         <div class="log-time">Time: ${formattedTime}</div>
                     </div>
                 `;
@@ -1467,13 +1490,36 @@
             // Today's count
             document.getElementById('todayCount').textContent = todayLogs.length;
 
-            // Today's total
+            // Today's total (with ounces conversion)
             const todayTotal = todayLogs.reduce((sum, log) => sum + parseInt(log.amount), 0);
-            document.getElementById('todayTotal').textContent = todayTotal + 'ml';
+            document.getElementById('todayTotal').textContent = formatAmount(todayTotal);
 
-            // Last feed time and time since last feed
+            // Last feed time and time since last feed - ALWAYS USE MOST RECENT CHRONOLOGICALLY
             if (logs.length > 0) {
-                const lastLog = logs[0];
+                // Sort all logs chronologically to find the most recent one
+                const sortedLogs = logs.sort((a, b) => {
+                    // Parse dates and times for both logs
+                    const dateA = new Date(a.date);
+                    const dateB = new Date(b.date);
+                    
+                    const timePartsA = a.time.toString().replace(/'/g, '').trim().split(':');
+                    const timePartsB = b.time.toString().replace(/'/g, '').trim().split(':');
+                    
+                    const hoursA = parseInt(timePartsA[0]);
+                    const minutesA = parseInt(timePartsA[1]) || 0;
+                    const hoursB = parseInt(timePartsB[0]);
+                    const minutesB = parseInt(timePartsB[1]) || 0;
+                    
+                    // Create full datetime objects
+                    const fullDateA = new Date(dateA.getFullYear(), dateA.getMonth(), dateA.getDate(), hoursA, minutesA);
+                    const fullDateB = new Date(dateB.getFullYear(), dateB.getMonth(), dateB.getDate(), hoursB, minutesB);
+                    
+                    // Sort descending (most recent first)
+                    return fullDateB - fullDateA;
+                });
+                
+                // Now the first item is guaranteed to be the most recent
+                const lastLog = sortedLogs[0];
                 const lastTime = formatTime(lastLog.time);
                 document.getElementById('lastFeed').textContent = lastTime;
                 
@@ -1589,6 +1635,19 @@
             const period = hours >= 12 ? 'PM' : 'AM';
             const displayHour = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
             return `${displayHour}:${minutes.toString().padStart(2, '0')} ${period}`;
+        }
+
+        function mlToOz(ml) {
+            // Convert milliliters to ounces (1 ml = 0.033814 oz)
+            const oz = ml * 0.033814;
+            // Round to 1 decimal place, but only show decimal if needed
+            const rounded = Math.round(oz * 10) / 10;
+            return rounded % 1 === 0 ? rounded.toFixed(0) : rounded.toFixed(1);
+        }
+
+        function formatAmount(ml) {
+            // Format as "XXml (X.Xoz)" or "XXml (Xoz)" if whole number
+            return `${ml}ml (${mlToOz(ml)}oz)`;
         }
 
         function setDefaultDateTime() {
