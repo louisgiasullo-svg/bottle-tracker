@@ -223,6 +223,39 @@
             margin: 0 auto;
         }
 
+        .main-header {
+            color: white;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 36px;
+            font-weight: 800;
+            text-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            letter-spacing: -0.5px;
+        }
+
+        .main-header::before {
+            content: '👶 ';
+        }
+
+        .main-header::after {
+            content: ' 🌟';
+        }
+
+        .section-title {
+            color: white;
+            text-align: center;
+            margin-bottom: 20px;
+            margin-top: 30px;
+            font-size: 24px;
+            font-weight: 700;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            letter-spacing: 0.3px;
+        }
+
+        .section-title::before {
+            content: '🍼 ';
+        }
+
         h1 {
             color: white;
             text-align: center;
@@ -645,12 +678,216 @@
             font-weight: 600;
         }
 
+        /* Profile Card */
+        .profile-section {
+            background: linear-gradient(135deg, #ffffff 0%, #fef9f9 100%);
+            border-radius: 25px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 25px rgba(162, 155, 254, 0.15);
+            border: 3px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .profile-name {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #a29bfe 0%, #fd79a8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+        }
+
+        .profile-emoji {
+            font-size: 32px;
+        }
+
+        .profile-photo-container {
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .profile-photo-container:hover {
+            transform: scale(1.05);
+        }
+
+        .profile-photo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #fff5f7 0%, #fef9f9 100%);
+            border: 3px solid #fd79a8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(253, 121, 168, 0.2);
+        }
+
+        .profile-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-placeholder {
+            font-size: 40px;
+        }
+
+        .photo-upload-hint {
+            font-size: 10px;
+            color: #b2bec3;
+            margin-top: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .profile-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .profile-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+        }
+
+        .profile-item {
+            background: linear-gradient(135deg, #fff5f7 0%, #fef9f9 100%);
+            padding: 16px;
+            border-radius: 18px;
+            text-align: center;
+            border: 2px solid #ffe5ec;
+            transition: all 0.2s;
+        }
+
+        .profile-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(253, 121, 168, 0.15);
+        }
+
+        .profile-label {
+            font-size: 11px;
+            color: #b2bec3;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .profile-value {
+            font-size: 22px;
+            font-weight: 800;
+            color: #6c5ce7;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .profile-value.editable {
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .profile-value.editable:hover {
+            color: #a29bfe;
+        }
+
+        .profile-value.editable::after {
+            content: '✏️';
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.2s;
+            display: block;
+        }
+
+        .profile-value.editable:hover::after {
+            opacity: 1;
+        }
+
+        .edit-input {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #a29bfe;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            color: #6c5ce7;
+            text-align: center;
+            background: white;
+        }
+
+        .edit-input:focus {
+            outline: none;
+            border-color: #fd79a8;
+            box-shadow: 0 0 0 3px rgba(253, 121, 168, 0.1);
+        }
+
+        .edit-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .edit-buttons button {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .save-btn {
+            background: linear-gradient(135deg, #55efc4 0%, #81ecec 100%);
+            color: white;
+        }
+
+        .save-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(85, 239, 196, 0.3);
+        }
+
+        .cancel-btn {
+            background: #f1f3f5;
+            color: #636e72;
+        }
+
+        .cancel-btn:hover {
+            background: #e9ecef;
+        }
+
         /* Dark Mode - Auto-activates 8pm-6am EST */
         body.dark-mode {
             background: linear-gradient(135deg, #2c3e50 0%, #34495e 50%, #5f4b8b 100%);
             color: #e0e0e0;
         }
 
+        body.dark-mode .main-header,
+        body.dark-mode .section-title,
         body.dark-mode h1 {
             color: #e0e0e0;
             text-shadow: 0 3px 10px rgba(0,0,0,0.3);
@@ -781,6 +1018,55 @@
         body.dark-mode .status {
             color: #b19cd9;
         }
+
+        body.dark-mode .profile-section {
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+            border: 2px solid #4a5f7f;
+        }
+
+        body.dark-mode .profile-name {
+            background: linear-gradient(135deg, #d4a5ff 0%, #ff9ff3 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        body.dark-mode .profile-photo {
+            background: linear-gradient(135deg, #3d4f63 0%, #425566 100%);
+            border-color: #b19cd9;
+        }
+
+        body.dark-mode .photo-upload-hint {
+            color: #7f8c9d;
+        }
+
+        body.dark-mode .profile-item {
+            background: linear-gradient(135deg, #3d4f63 0%, #425566 100%);
+            border-color: #4a5f7f;
+        }
+
+        body.dark-mode .profile-value {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .profile-value.editable:hover {
+            color: #d4a5ff;
+        }
+
+        body.dark-mode .edit-input {
+            background: #425566;
+            border-color: #b19cd9;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .cancel-btn {
+            background: #3d4f63;
+            color: #9ca3af;
+        }
+
+        body.dark-mode .cancel-btn:hover {
+            background: #4a5f7f;
+        }
     </style>
 </head>
 <body>
@@ -816,7 +1102,49 @@
     </div>
     
     <div class="container">
-        <h1>Bottle Feed Tracker</h1>
+        <h1 class="main-header">Baby Dashboard</h1>
+
+        <div class="profile-section">
+            <div class="profile-header">
+                <div class="profile-photo-container" onclick="uploadPhoto()">
+                    <div class="profile-photo" id="profilePhoto">
+                        <span class="photo-placeholder">👶</span>
+                    </div>
+                    <div class="photo-upload-hint">Click to upload</div>
+                </div>
+                <h2 class="profile-name">Serafina</h2>
+            </div>
+            <div class="profile-grid">
+                <div class="profile-item">
+                    <div class="profile-label">Age</div>
+                    <div class="profile-value" id="babyAge">--</div>
+                </div>
+                <div class="profile-item">
+                    <div class="profile-label">Birth Date</div>
+                    <div class="profile-value">Dec 3, 2025</div>
+                </div>
+                <div class="profile-item">
+                    <div class="profile-label">Height</div>
+                    <div class="profile-value editable" id="babyHeight" onclick="editField('height')">23.5 in</div>
+                </div>
+                <div class="profile-item">
+                    <div class="profile-label">Weight</div>
+                    <div class="profile-value editable" id="babyWeight" onclick="editField('weight')">12 lbs</div>
+                </div>
+                <div class="profile-item">
+                    <div class="profile-label">Last Doctor Visit</div>
+                    <div class="profile-value editable" id="lastVisit" onclick="editField('lastVisit')">Not set</div>
+                </div>
+                <div class="profile-item">
+                    <div class="profile-label">Next Doctor Visit</div>
+                    <div class="profile-value editable" id="nextVisit" onclick="editField('nextVisit')">Not set</div>
+                </div>
+            </div>
+        </div>
+
+        <input type="file" id="photoInput" accept="image/*" style="display: none;" onchange="handlePhotoUpload(event)">
+
+        <h2 class="section-title">Bottle Feed Tracker</h2>
 
         <div class="stats-section" id="statsSection">
             <div class="stats-grid">
@@ -1656,6 +1984,217 @@
             document.getElementById('manualTime').value = now.toTimeString().split(' ')[0].substring(0, 5);
         }
 
+        // Profile Management
+        const BABY_BIRTHDAY = new Date('2025-12-03');
+        let profileData = {
+            height: 23.5, // inches
+            weight: 12,   // lbs
+            photo: null,  // base64 image data
+            lastVisit: null,  // date string
+            nextVisit: null   // date string
+        };
+
+        function calculateAge() {
+            const now = new Date();
+            const diffTime = Math.abs(now - BABY_BIRTHDAY);
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            const weeks = Math.round(diffDays / 7);
+            
+            let mainDisplay = '';
+            
+            if (diffDays < 365) {
+                // Under 1 year - show months only
+                const months = Math.round(diffDays / 30);
+                if (months === 0) {
+                    mainDisplay = '0mo';
+                } else if (months === 1) {
+                    mainDisplay = '1mo';
+                } else {
+                    mainDisplay = `${months}mo`;
+                }
+            } else {
+                // 1 year or older - show years and months
+                const years = Math.floor(diffDays / 365);
+                const remainingDays = diffDays % 365;
+                const months = Math.round(remainingDays / 30);
+                
+                if (months === 0) {
+                    mainDisplay = `${years}yr`;
+                } else {
+                    mainDisplay = `${years}yr ${months}mo`;
+                }
+            }
+            
+            // Return with weeks in parentheses on new line
+            return `${mainDisplay}<br><span style="font-size: 14px; color: #b2bec3;">(${weeks}w)</span>`;
+        }
+
+        function updateAge() {
+            document.getElementById('babyAge').innerHTML = calculateAge();
+        }
+
+        function loadProfileData() {
+            const saved = localStorage.getItem('serafina_profile');
+            if (saved) {
+                profileData = JSON.parse(saved);
+                document.getElementById('babyHeight').textContent = `${profileData.height} in`;
+                document.getElementById('babyWeight').textContent = `${profileData.weight} lbs`;
+                
+                // Load photo
+                if (profileData.photo) {
+                    document.getElementById('profilePhoto').innerHTML = `<img src="${profileData.photo}" alt="Serafina">`;
+                }
+                
+                // Load doctor visits
+                if (profileData.lastVisit) {
+                    document.getElementById('lastVisit').textContent = formatVisitDate(profileData.lastVisit);
+                }
+                if (profileData.nextVisit) {
+                    document.getElementById('nextVisit').textContent = formatVisitDate(profileData.nextVisit);
+                }
+            }
+            updateAge();
+        }
+
+        function formatVisitDate(dateStr) {
+            if (!dateStr) return 'Not set';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        function saveProfileData() {
+            localStorage.setItem('serafina_profile', JSON.stringify(profileData));
+        }
+
+        function editField(fieldName) {
+            let element, currentValue, inputType, inputStep;
+            
+            if (fieldName === 'height') {
+                element = document.getElementById('babyHeight');
+                currentValue = profileData.height;
+                inputType = 'number';
+                inputStep = '0.1';
+            } else if (fieldName === 'weight') {
+                element = document.getElementById('babyWeight');
+                currentValue = profileData.weight;
+                inputType = 'number';
+                inputStep = '0.1';
+            } else if (fieldName === 'lastVisit' || fieldName === 'nextVisit') {
+                element = document.getElementById(fieldName);
+                currentValue = profileData[fieldName] || '';
+                inputType = 'date';
+                inputStep = null;
+            }
+            
+            const stepAttr = inputStep ? `step="${inputStep}"` : '';
+            
+            element.innerHTML = `
+                <input type="${inputType}" ${stepAttr} class="edit-input" id="edit-${fieldName}" value="${currentValue}" />
+                <div class="edit-buttons">
+                    <button class="save-btn" onclick="saveField('${fieldName}')">Save</button>
+                    <button class="cancel-btn" onclick="cancelEdit('${fieldName}')">Cancel</button>
+                </div>
+            `;
+            
+            document.getElementById(`edit-${fieldName}`).focus();
+            if (inputType === 'number') {
+                document.getElementById(`edit-${fieldName}`).select();
+            }
+        }
+
+        function saveField(fieldName) {
+            const input = document.getElementById(`edit-${fieldName}`);
+            let newValue, element, displayText;
+            
+            if (fieldName === 'height' || fieldName === 'weight') {
+                newValue = parseFloat(input.value);
+                
+                if (isNaN(newValue) || newValue <= 0) {
+                    alert('Please enter a valid number');
+                    return;
+                }
+                
+                profileData[fieldName] = newValue;
+                element = document.getElementById(fieldName === 'height' ? 'babyHeight' : 'babyWeight');
+                const unit = fieldName === 'height' ? 'in' : 'lbs';
+                displayText = `${newValue} ${unit}`;
+            } else if (fieldName === 'lastVisit' || fieldName === 'nextVisit') {
+                newValue = input.value;
+                
+                if (!newValue) {
+                    profileData[fieldName] = null;
+                    displayText = 'Not set';
+                } else {
+                    profileData[fieldName] = newValue;
+                    displayText = formatVisitDate(newValue);
+                }
+                
+                element = document.getElementById(fieldName);
+            }
+            
+            saveProfileData();
+            element.textContent = displayText;
+            element.onclick = () => editField(fieldName);
+        }
+
+        function cancelEdit(fieldName) {
+            let element, displayText;
+            
+            if (fieldName === 'height') {
+                element = document.getElementById('babyHeight');
+                displayText = `${profileData.height} in`;
+            } else if (fieldName === 'weight') {
+                element = document.getElementById('babyWeight');
+                displayText = `${profileData.weight} lbs`;
+            } else if (fieldName === 'lastVisit' || fieldName === 'nextVisit') {
+                element = document.getElementById(fieldName);
+                displayText = profileData[fieldName] ? formatVisitDate(profileData[fieldName]) : 'Not set';
+            }
+            
+            element.textContent = displayText;
+            element.onclick = () => editField(fieldName);
+        }
+
+        // Photo Upload Functions
+        function uploadPhoto() {
+            document.getElementById('photoInput').click();
+        }
+
+        function handlePhotoUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // Check file size (limit to 5MB for localStorage)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Photo is too large. Please choose a photo under 5MB.');
+                return;
+            }
+            
+            // Check if it's an image
+            if (!file.type.startsWith('image/')) {
+                alert('Please select an image file.');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64Image = e.target.result;
+                
+                // Save to profile data
+                profileData.photo = base64Image;
+                saveProfileData();
+                
+                // Display the image
+                document.getElementById('profilePhoto').innerHTML = `<img src="${base64Image}" alt="Serafina">`;
+            };
+            
+            reader.onerror = function() {
+                alert('Error uploading photo. Please try again.');
+            };
+            
+            reader.readAsDataURL(file);
+        }
+
         // Auto Dark Mode (8pm - 6am EST)
         function checkDarkMode() {
             const now = new Date();
@@ -1678,6 +2217,7 @@
 
         // Initialize
         checkDarkMode();
+        loadProfileData();
         setDefaultDateTime();
         displayLogs();
         updateStats();
@@ -1685,6 +2225,9 @@
         
         // Check dark mode every minute
         setInterval(checkDarkMode, 60000);
+        
+        // Update age every hour
+        setInterval(updateAge, 3600000);
     </script>
 </body>
 </html>
