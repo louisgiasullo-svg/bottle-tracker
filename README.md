@@ -1,10 +1,20 @@
-# 🍼 Voice-Activated Bottle Feed Tracker
+# 👶 Baby Dashboard - Voice-Activated Bottle Feed Tracker
 
-A hands-free baby bottle feeding tracker designed for sleep-deprived parents. Simply press your iPhone's Action Button, speak the feeding details, and the app automatically logs the amount, time, and date to a shared tracker. Built with iOS Shortcuts integration, a progressive web app interface, and Google Sheets backend for real-time data sharing between caregivers. All times are captured in Eastern Standard Time (EST) with a customizable 6am-6am daily tracking window to match real-world feeding schedules.
+A comprehensive baby tracking dashboard designed for sleep-deprived parents. Track bottle feedings with hands-free voice input via iPhone's Action Button, monitor vital stats, growth metrics, and doctor appointments all in one beautiful interface. Built with iOS Shortcuts integration, a progressive web app, and Google Sheets backend for real-time data sharing between caregivers.
 
-Features a beautiful soft pastel baby theme with floating clouds and automatic dark mode for nighttime feedings.
+Features Serafina's personalized profile with photo upload, automatic age calculation, growth tracking, and a soft pastel baby theme with floating clouds and automatic dark mode for nighttime use.
 
 ## Features
+
+### 👶 Baby Profile Dashboard
+- **Profile Photo Upload**: Click-to-upload baby photo (base64, stored in localStorage)
+- **Personalized Header**: Baby's name displayed prominently with emoji
+- **Age Calculation**: Auto-calculated from birth date, displays as months/years with weeks in parentheses
+- **Birth Date**: Static display (Dec 3, 2025) - always visible reference
+- **Growth Tracking**: Editable height and weight fields with inline editing
+- **Doctor Appointments**: Last and next doctor visit dates (editable with date picker)
+- **6-Card Grid**: Responsive layout that adapts to desktop, tablet, and mobile
+- **Visual Design**: Circular profile photo with gradient border, matching pastel theme
 
 ### Voice-Activated Logging
 - **Action Button Integration**: Press your iPhone 15 Pro's Action Button to instantly start voice logging
@@ -37,6 +47,8 @@ Features a beautiful soft pastel baby theme with floating clouds and automatic d
 - **Rounded Design**: Modern 15-25px rounded corners throughout
 - **Smooth Animations**: Hover effects and transitions on all interactive elements
 - **Gradient Accents**: Purple, pink, coral, and mint green highlights
+- **Dual Units**: All amounts display as both ml and oz (e.g., "120ml (4.1oz)")
+- **Smart Rounding**: Ounces show 1 decimal only when needed (5oz vs 4.1oz)
 
 ### Automatic Dark Mode
 - **Time-Based Activation**: Turns on at 8:00 PM EST, off at 6:00 AM EST
@@ -50,13 +62,15 @@ Features a beautiful soft pastel baby theme with floating clouds and automatic d
 - **Multi-User Support**: Both parents can log feeds and see the same data in real-time
 - **Data Persistence**: Never lose your feeding history - it's all safely stored in the cloud
 - **Export Ready**: Access raw data directly in Google Sheets for pediatrician visits or personal analysis
+- **Profile Storage**: Baby profile data (photo, stats, appointments) stored in browser localStorage
 
 ### Clean, Mobile-Optimized UI
 - **Progressive Web App**: Add to home screen for a native app-like experience
 - **Responsive Design**: Works perfectly on any iPhone or Android device
-- **Collapsible Feed Log**: Click header to expand/collapse full feed history
-- **Organized Layout**: Stats → History → Manual Entry → Feed Log
+- **Collapsible Feed Log**: Starts collapsed by default, click header to expand full history
+- **Organized Layout**: Dashboard → Profile → Stats → History → Manual Entry → Feed Log
 - **Visual Polish**: Gradient text effects, soft shadows, smooth transitions
+- **Chronological Sorting**: All feeds display most recent first
 
 ## How It Works
 
@@ -160,6 +174,13 @@ The app intelligently parses natural language input:
 
 ## Usage
 
+### Managing Baby Profile
+1. **Upload Photo**: Click the circular photo placeholder to select and upload a photo
+2. **Edit Height/Weight**: Click the value → Enter new number → Save
+3. **Set Doctor Visits**: Click Last/Next Doctor Visit → Pick date from calendar → Save
+4. **View Age**: Automatically calculated and displayed (e.g., "3mo (11w)")
+5. All profile changes save automatically to localStorage
+
 ### Voice Logging
 1. Press your Action Button
 2. Wait for dictation to start
@@ -168,21 +189,23 @@ The app intelligently parses natural language input:
 
 ### Manual Logging
 1. Open the tracker app
-2. Tap a quick-log button (45ml, 70ml, 130ml, 180ml) OR
-3. Enter a custom amount and tap "Log Feed"
-4. Feed is logged with current EST timestamp
-5. Optionally edit date/time before logging
+2. Enter amount in the input field
+3. Click "Log Now" for current time OR
+4. Expand "Advanced" to set custom date/time
+5. Feed is logged with EST timestamp
 
-### Viewing History
-- Scroll through the Feed Log section to see all past feedings
-- Each entry shows date (EST calendar date), time (12-hour format), and amount
-- Tap "Delete" to remove an entry
-- Tap "Clear All" to delete all feeding data (affects both parents!)
+### Viewing Data
+- **Profile Cards**: Age, Birth Date, Height, Weight, Doctor Visits always visible
+- **Stats Dashboard**: Today's feeds, totals, last feed, time since last
+- **History Table**: Last 6 days with feed counts and totals (ml + oz)
+- **Feed Log**: Click header to expand/collapse, shows all feeds with ml + oz
+- **Delete Options**: Individual feed deletion or Clear All
 
 ### Understanding the Stats
+- **Age**: Auto-calculated as months/years with weeks below in parentheses
 - **Today's Feeds**: Counts feeds from 6am EST today until 6am EST tomorrow
-- **Today's Total**: Sum of milliliters in the current 6am-6am window
-- **Last Feed**: Time of most recent feed (updates in real-time)
+- **Today's Total**: Sum of milliliters (and ounces) in the current 6am-6am window
+- **Last Feed**: Time of most recent feed (chronologically sorted, updates in real-time)
 - **Time Since Last**: Live countdown (updates as time passes)
 
 ## Troubleshooting
@@ -228,8 +251,8 @@ The app intelligently parses natural language input:
 ## File Structure
 
 ```
-bottle-feed-tracker/
-├── index.html                           # Main web app (use PASTEL-WITH-AUTO-DARK-MODE version)
+baby-dashboard/
+├── index.html                           # Main web app (use WITH-BIRTH-DATE version)
 ├── google-apps-script-STATS-FIXED.js   # Backend API with date/time formatting
 ├── README.md                            # This file
 └── GOOGLE-SHEETS-SETUP-GUIDE.md        # Detailed setup walkthrough
@@ -246,6 +269,13 @@ bottle-feed-tracker/
 
 ## Key Features Explained
 
+### Why Baby Profile Dashboard?
+- **Centralized Info**: All vital stats, growth data, and appointments in one place
+- **Quick Reference**: Perfect for doctor visits or caregiver handoffs
+- **Visual Memory**: Profile photo makes it personal and easy to identify
+- **Age Tracking**: Automatically calculates age in months/years and weeks
+- **Growth Story**: Track height and weight changes over time
+
 ### Why EST Timezone?
 - Ensures consistency when parents are in different timezones
 - Matches typical US East Coast usage
@@ -256,6 +286,13 @@ bottle-feed-tracker/
 - A 2am feeding counts toward the previous "day" as parents still consider it "tonight"
 - Matches how pediatricians often track daily intake
 - Stats reset at a practical time when baby is likely sleeping
+
+### Why Display Both ml and oz?
+- **Medical Standard**: Pediatricians typically use oz in the US
+- **Bottle Markings**: Most bottles show both measurements
+- **Family Communication**: Some family members prefer one unit over the other
+- **Accuracy**: Shows precise conversions (120ml = 4.1oz)
+- **Flexibility**: No mental math needed, both units always visible
 
 ### Why 6-Day History Instead of Quick Buttons?
 - Provides better overview of feeding patterns over time
@@ -285,40 +322,55 @@ Both timezone and daily window can be customized by editing these values in the 
 
 ## Future Enhancement Ideas
 
+### Profile Enhancements
+- 🩺 **Blood Type** - Emergency medical information
+- 📏 **Birth Length** - Baseline for growth tracking
+- 🏥 **Pediatrician Contact** - Name and phone number
+- 🍼 **Formula/Milk Type** - Current feeding preference
+- 💊 **Allergies Tracking** - Safety-critical information
+- 📊 **Growth Percentiles** - Weight/height percentile indicators
+- 📸 **Milestone Photos** - Photo gallery for key moments
+- 👕 **Clothing Sizes** - Current diaper, clothing sizes
+
 ### Multi-Child Dashboard
 - 👶 Support for tracking multiple children
 - 🎨 Color-coded sections per child
 - 📊 Consolidated family view
+- 👥 Child switcher toggle
 
 ### Additional Tracking
-- 💊 Medicine and vitamin logging
+- 💊 Medicine and vitamin logging with dosage
 - 💤 Sleep tracking (naps and nighttime)
 - 🍽️ Solid food introduction tracker
-- 🚼 Diaper change logs
+- 🚼 Diaper change logs (wet/dirty counts)
 - 🌡️ Temperature and illness tracking
-- ⚖️ Weight and height milestones
-- 🦷 Teething tracker
+- 🦷 Teething tracker with pain levels
+- 🎯 Milestone tracker with photo upload
 
 ### Analytics & Insights
 - 📈 Graphs showing feeding patterns over time
 - 📊 Weekly/monthly summary reports
-- 📉 Growth charts
+- 📉 Growth charts with percentile curves
 - 🔔 Smart predictions for next feeding time
 - ⚠️ Alerts if baby hasn't fed in X hours
+- 📧 Automated email summaries to pediatrician
 
 ### Family Features
 - 📧 Automated daily/weekly email summaries
 - 📤 Export to PDF for pediatrician appointments
 - 📅 Appointment and vaccination reminders
 - 👨‍👩‍👧 Shared notes and caregiver handoff
-- 📷 Photo and milestone gallery
+- 📱 Push notifications for scheduled activities
+- 🔔 Alerts for medication times
 
 ### UI Enhancements
 - 🌙 Manual dark mode toggle option
 - 🌍 Automatic timezone detection
 - 📱 Android Quick Settings Tile integration
 - ⚙️ Customizable daily reset time in settings
-- 🎨 Multiple theme options
+- 🎨 Multiple theme options (not just pastel)
+- 📊 Dashboard widget customization
+- 🔊 Voice feedback after logging
 
 ## Contributing
 
@@ -334,10 +386,11 @@ Built with love (and severe sleep deprivation) for new parents everywhere. Speci
 
 ---
 
-**Version**: 3.0 (Pastel Theme + Auto Dark Mode)  
+**Version**: 4.0 (Baby Dashboard + Profile Management)  
 **Last Updated**: February 2026  
 **Tested On**: iPhone 15 Pro, iOS 18+, Chrome & Safari  
 **Timezone**: Eastern Standard Time (EST/EDT)  
 **Daily Window**: 6:00 AM - 6:00 AM EST  
 **Theme**: Soft Pastel Baby with 10 Floating Clouds  
-**Dark Mode**: Auto-activates 8:00 PM - 6:00 AM EST
+**Dark Mode**: Auto-activates 8:00 PM - 6:00 AM EST  
+**Profile Features**: Photo upload, age calculation, growth tracking, appointments
