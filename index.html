@@ -1801,7 +1801,8 @@
                 action: 'add',
                 date: entry.date,
                 time: entry.time,
-                amount: entry.amount
+                amount: entry.amount,
+                timestamp: entry.timestamp || new Date().getTime().toString()
             };
             
             fetch(GOOGLE_SCRIPT_URL, {
