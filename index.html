@@ -2391,37 +2391,94 @@
             document.getElementById('babyAge').innerHTML = calculateAge();
         }
 
-        function loadProfileData() {
+        async function loadProfileData() {
+            // Load photo from localStorage only
             const saved = localStorage.getItem('serafina_profile');
             if (saved) {
-                profileData = JSON.parse(saved);
-                document.getElementById('babyHeight').textContent = `${profileData.height} in`;
-                document.getElementById('babyWeight').textContent = `${profileData.weight} lbs`;
+                const localData = JSON.parse(saved);
+                profileData.photo = localData.photo;
                 
                 // Load photo
                 if (profileData.photo) {
                     document.getElementById('profilePhoto').innerHTML = `<img src="${profileData.photo}" alt="Serafina">`;
                 }
-                
-                // Load doctor visits
-                if (profileData.lastVisit) {
-                    document.getElementById('lastVisit').textContent = formatVisitDate(profileData.lastVisit);
-                }
-                if (profileData.nextVisit) {
-                    document.getElementById('nextVisit').textContent = formatVisitDate(profileData.nextVisit);
-                }
             }
+            
+            // Load height, weight, and doctor visits from Google Sheets (synced between devices)
+            await loadProfileFromSheets();
+            
             updateAge();
         }
 
         function formatVisitDate(dateStr) {
             if (!dateStr) return 'Not set';
-            const date = new Date(dateStr);
+            // Parse as local date to avoid timezone shift
+            // dateStr is in format "YYYY-MM-DD"
+            const [year, month, day] = dateStr.split('-');
+            const date = new Date(year, month - 1, day); // month is 0-indexed
             return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         }
 
         function saveProfileData() {
-            localStorage.setItem('serafina_profile', JSON.stringify(profileData));
+            // Save photo to localStorage only
+            localStorage.setItem('serafina_profile', JSON.stringify({
+                photo: profileData.photo
+            }));
+            
+            // Save height, weight, and doctor visits to Google Sheets for syncing
+            saveProfileToSheets();
+        }
+
+        async function saveProfileToSheets() {
+            const data = {
+                action: 'saveProfile',
+                height: profileData.height || 23.5,
+                weight: profileData.weight || 12,
+                lastVisit: profileData.lastVisit || '',
+                nextVisit: profileData.nextVisit || ''
+            };
+            
+            try {
+                await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+            } catch (error) {
+                console.error('Error saving profile to Sheets:', error);
+            }
+        }
+
+        async function loadProfileFromSheets() {
+            try {
+                const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=getProfile`);
+                const data = await response.json();
+                
+                // Load height and weight
+                if (data.height) {
+                    profileData.height = parseFloat(data.height);
+                    document.getElementById('babyHeight').textContent = `${profileData.height} in`;
+                }
+                if (data.weight) {
+                    profileData.weight = parseFloat(data.weight);
+                    document.getElementById('babyWeight').textContent = `${profileData.weight} lbs`;
+                }
+                
+                // Load doctor visits
+                if (data.lastVisit) {
+                    profileData.lastVisit = data.lastVisit;
+                    document.getElementById('lastVisit').textContent = formatVisitDate(data.lastVisit);
+                }
+                if (data.nextVisit) {
+                    profileData.nextVisit = data.nextVisit;
+                    document.getElementById('nextVisit').textContent = formatVisitDate(data.nextVisit);
+                }
+            } catch (error) {
+                console.error('Error loading profile from Sheets:', error);
+            }
         }
 
         function editField(fieldName) {
