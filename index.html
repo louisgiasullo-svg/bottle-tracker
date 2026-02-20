@@ -572,11 +572,27 @@
             border-left: 5px solid #a29bfe;
             box-shadow: 0 3px 10px rgba(162, 155, 254, 0.08);
             transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
         }
 
         .log-entry:hover {
             transform: translateX(3px);
             box-shadow: 0 5px 15px rgba(162, 155, 254, 0.15);
+        }
+
+        .log-content {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .log-actions {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
         }
 
         .log-date {
@@ -607,8 +623,30 @@
             font-size: 15px;
         }
 
+        .edit-log-button {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f0f8ff 100%);
+            color: #0984e3;
+            border: 2px solid #74b9ff;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .edit-log-button:hover {
+            background: linear-gradient(135deg, #0984e3 0%, #74b9ff 100%);
+            color: white;
+            border-color: #0984e3;
+            transform: scale(1.05);
+        }
+
+        .edit-log-button:active {
+            transform: scale(0.95);
+        }
+
         .delete-button {
-            float: right;
             background: linear-gradient(135deg, #ffe5ec 0%, #fff0f3 100%);
             color: #fd79a8;
             border: 2px solid #ffccd5;
@@ -629,6 +667,41 @@
 
         .delete-button:active {
             transform: scale(0.95);
+        }
+
+        .log-edit-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+            margin-top: 12px;
+        }
+
+        .log-edit-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .log-edit-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 2px solid #a29bfe;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #6c5ce7;
+        }
+
+        .log-edit-input:focus {
+            outline: none;
+            border-color: #0984e3;
+            box-shadow: 0 0 0 3px rgba(9, 132, 227, 0.1);
+        }
+
+        .log-edit-buttons {
+            display: flex;
+            gap: 8px;
         }
 
         .stats-section {
@@ -1109,6 +1182,24 @@
         body.dark-mode .history-empty {
             color: #7f8c9d;
         }
+
+        body.dark-mode .edit-log-button {
+            background: linear-gradient(135deg, #2d3e50 0%, #34495e 100%);
+            color: #74b9ff;
+            border-color: #4a5f7f;
+        }
+
+        body.dark-mode .edit-log-button:hover {
+            background: linear-gradient(135deg, #0984e3 0%, #74b9ff 100%);
+            color: white;
+        }
+
+        body.dark-mode .log-edit-input {
+            background: #425566;
+            border-color: #b19cd9;
+            color: #e0e0e0;
+        }
+
 
         body.dark-mode .stat-card {
             background: linear-gradient(135deg, #3d4f63 0%, #425566 100%);
@@ -1792,11 +1883,16 @@
                 console.log('Formatted:', { date: formattedDate, time: formattedTime });
                 
                 return `
-                    <div class="log-entry">
-                        <button class="delete-button" onclick="deleteEntry('${log.timestamp}')">Delete</button>
-                        <div class="log-date">${formattedDate}</div>
-                        <div class="log-details">${formatAmount(log.amount)}</div>
-                        <div class="log-time">Time: ${formattedTime}</div>
+                    <div class="log-entry" id="log-${log.timestamp}">
+                        <div class="log-content">
+                            <div class="log-date">${formattedDate}</div>
+                            <div class="log-details">${formatAmount(log.amount)}</div>
+                            <div class="log-time">Time: ${formattedTime}</div>
+                        </div>
+                        <div class="log-actions">
+                            <button class="edit-log-button" onclick="editFeedLog('${log.timestamp}', ${log.amount}, '${log.date}', '${log.time}')">Edit</button>
+                            <button class="delete-button" onclick="deleteEntry('${log.timestamp}')">Delete</button>
+                        </div>
                     </div>
                 `;
             }).join('');
@@ -1826,6 +1922,111 @@
                     console.error('Error deleting entry:', error);
                 });
             }
+        }
+
+        function editFeedLog(timestamp, currentAmount, currentDate, currentTime) {
+            const logEntry = document.getElementById(`log-${timestamp}`);
+            
+            // Parse the date for the input
+            const date = new Date(currentDate);
+            const dateStr = date.toISOString().split('T')[0];
+            
+            // Parse time (remove any quotes/apostrophes)
+            const timeStr = currentTime.toString().replace(/'/g, '').trim();
+            
+            // Replace content with edit form
+            logEntry.innerHTML = `
+                <div class="log-content">
+                    <div class="log-edit-form">
+                        <div class="log-edit-row">
+                            <label style="font-weight: 600; color: #a29bfe; min-width: 70px;">Amount:</label>
+                            <input type="number" class="log-edit-input" id="edit-amount-${timestamp}" value="${currentAmount}" step="1" min="1">
+                            <span style="color: #b2bec3; font-weight: 600;">ml</span>
+                        </div>
+                        <div class="log-edit-row">
+                            <label style="font-weight: 600; color: #a29bfe; min-width: 70px;">Date:</label>
+                            <input type="date" class="log-edit-input" id="edit-date-${timestamp}" value="${dateStr}">
+                        </div>
+                        <div class="log-edit-row">
+                            <label style="font-weight: 600; color: #a29bfe; min-width: 70px;">Time:</label>
+                            <input type="time" class="log-edit-input" id="edit-time-${timestamp}" value="${timeStr}">
+                        </div>
+                    </div>
+                </div>
+                <div class="log-actions">
+                    <div class="log-edit-buttons">
+                        <button class="save-btn" onclick="saveFeedEdit('${timestamp}')">Save</button>
+                        <button class="cancel-btn" onclick="cancelFeedEdit()">Cancel</button>
+                    </div>
+                </div>
+            `;
+            
+            // Focus the amount input
+            document.getElementById(`edit-amount-${timestamp}`).focus();
+        }
+
+        async function saveFeedEdit(timestamp) {
+            const newAmount = document.getElementById(`edit-amount-${timestamp}`).value;
+            const newDate = document.getElementById(`edit-date-${timestamp}`).value;
+            const newTime = document.getElementById(`edit-time-${timestamp}`).value;
+            
+            if (!newAmount || !newDate || !newTime) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            const amountNum = parseInt(newAmount);
+            if (isNaN(amountNum) || amountNum <= 0) {
+                alert('Please enter a valid amount');
+                return;
+            }
+            
+            // Confirm before saving
+            if (!confirm(`Save changes?\n\nAmount: ${amountNum}ml\nDate: ${newDate}\nTime: ${newTime}`)) {
+                return;
+            }
+            
+            // Delete old entry
+            await fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    action: 'delete',
+                    timestamp: timestamp
+                })
+            });
+            
+            // Add new entry with updated values
+            const newTimestamp = new Date().getTime().toString();
+            await fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    action: 'add',
+                    amount: amountNum,
+                    date: newDate,
+                    time: newTime,
+                    timestamp: newTimestamp
+                })
+            });
+            
+            // Refresh display after a delay
+            setTimeout(() => {
+                displayLogs();
+                updateStats();
+                buildHistoryTable();
+            }, 1000);
+        }
+
+        function cancelFeedEdit() {
+            // Just refresh the display to restore original view
+            displayLogs();
         }
 
         async function clearAllLogs() {
