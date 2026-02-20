@@ -694,6 +694,67 @@
             justify-content: center;
             gap: 12px;
             margin-bottom: 20px;
+            position: relative;
+        }
+
+        .profile-toggle {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, #a29bfe 0%, #fd79a8 100%);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: white;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(162, 155, 254, 0.3);
+        }
+
+        .profile-toggle:hover {
+            transform: translateY(-50%) scale(1.1);
+            box-shadow: 0 6px 16px rgba(162, 155, 254, 0.4);
+        }
+
+        .profile-toggle.collapsed::before {
+            content: '▶';
+        }
+
+        .profile-toggle.expanded::before {
+            content: '▼';
+        }
+
+        .profile-cards-container {
+            max-height: 500px;
+            overflow: hidden;
+            transition: max-height 0.4s ease-in-out, opacity 0.3s ease-in-out;
+            opacity: 1;
+        }
+
+        .profile-cards-container.collapsed {
+            max-height: 0;
+            opacity: 0;
+        }
+
+        .profile-hint {
+            text-align: center;
+            color: #b2bec3;
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 15px;
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .profile-hint.hidden {
+            display: none;
         }
 
         .profile-name {
@@ -878,6 +939,41 @@
 
         .cancel-btn:hover {
             background: #e9ecef;
+        }
+
+        .saved-indicator {
+            display: inline-block;
+            color: #55efc4;
+            font-weight: 700;
+            font-size: 16px;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .photo-success-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 28px;
+            height: 28px;
+            background: #55efc4;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            box-shadow: 0 4px 12px rgba(85, 239, 196, 0.4);
+            animation: successPop 0.5s ease-out;
+        }
+
+        @keyframes successPop {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
         }
 
         /* Dark Mode - Auto-activates 8pm-6am EST */
@@ -1067,6 +1163,18 @@
         body.dark-mode .cancel-btn:hover {
             background: #4a5f7f;
         }
+
+        body.dark-mode .profile-toggle {
+            background: linear-gradient(135deg, #b19cd9 0%, #d4a5ff 100%);
+        }
+
+        body.dark-mode .saved-indicator {
+            color: #81ecec;
+        }
+
+        body.dark-mode .profile-hint {
+            color: #7f8c9d;
+        }
     </style>
 </head>
 <body>
@@ -1113,31 +1221,35 @@
                     <div class="photo-upload-hint">Click to upload</div>
                 </div>
                 <h2 class="profile-name">Serafina</h2>
+                <button class="profile-toggle collapsed" onclick="toggleProfileCards()" aria-label="Toggle profile details"></button>
             </div>
-            <div class="profile-grid">
-                <div class="profile-item">
-                    <div class="profile-label">Age</div>
-                    <div class="profile-value" id="babyAge">--</div>
-                </div>
-                <div class="profile-item">
-                    <div class="profile-label">Birth Date</div>
-                    <div class="profile-value">Dec 3, 2025</div>
-                </div>
-                <div class="profile-item">
-                    <div class="profile-label">Height</div>
-                    <div class="profile-value editable" id="babyHeight" onclick="editField('height')">23.5 in</div>
-                </div>
-                <div class="profile-item">
-                    <div class="profile-label">Weight</div>
-                    <div class="profile-value editable" id="babyWeight" onclick="editField('weight')">12 lbs</div>
-                </div>
-                <div class="profile-item">
-                    <div class="profile-label">Last Doctor Visit</div>
-                    <div class="profile-value editable" id="lastVisit" onclick="editField('lastVisit')">Not set</div>
-                </div>
-                <div class="profile-item">
-                    <div class="profile-label">Next Doctor Visit</div>
-                    <div class="profile-value editable" id="nextVisit" onclick="editField('nextVisit')">Not set</div>
+            <div class="profile-hint" id="profileHint">Click ▶ to view profile details</div>
+            <div class="profile-cards-container collapsed" id="profileCards">
+                <div class="profile-grid">
+                    <div class="profile-item">
+                        <div class="profile-label">Age</div>
+                        <div class="profile-value" id="babyAge">--</div>
+                    </div>
+                    <div class="profile-item">
+                        <div class="profile-label">Birth Date</div>
+                        <div class="profile-value">Dec 3, 2025</div>
+                    </div>
+                    <div class="profile-item">
+                        <div class="profile-label">Height</div>
+                        <div class="profile-value editable" id="babyHeight" onclick="editField('height')">23.5 in</div>
+                    </div>
+                    <div class="profile-item">
+                        <div class="profile-label">Weight</div>
+                        <div class="profile-value editable" id="babyWeight" onclick="editField('weight')">12 lbs</div>
+                    </div>
+                    <div class="profile-item">
+                        <div class="profile-label">Last Doctor Visit</div>
+                        <div class="profile-value editable" id="lastVisit" onclick="editField('lastVisit')">Not set</div>
+                    </div>
+                    <div class="profile-item">
+                        <div class="profile-label">Next Doctor Visit</div>
+                        <div class="profile-value editable" id="nextVisit" onclick="editField('nextVisit')">Not set</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1994,6 +2106,27 @@
             nextVisit: null   // date string
         };
 
+        // Toggle profile cards collapse/expand
+        function toggleProfileCards() {
+            const container = document.getElementById('profileCards');
+            const button = document.querySelector('.profile-toggle');
+            const hint = document.getElementById('profileHint');
+            
+            if (container.classList.contains('collapsed')) {
+                // Expanding
+                container.classList.remove('collapsed');
+                button.classList.remove('collapsed');
+                button.classList.add('expanded');
+                hint.classList.add('hidden');
+            } else {
+                // Collapsing
+                container.classList.add('collapsed');
+                button.classList.remove('expanded');
+                button.classList.add('collapsed');
+                hint.classList.remove('hidden');
+            }
+        }
+
         function calculateAge() {
             const now = new Date();
             const diffTime = Math.abs(now - BABY_BIRTHDAY);
@@ -2133,8 +2266,15 @@
             }
             
             saveProfileData();
-            element.textContent = displayText;
-            element.onclick = () => editField(fieldName);
+            
+            // Show "Saved ✅" indicator
+            element.innerHTML = '<span class="saved-indicator">Saved ✅</span>';
+            
+            // After 2 seconds, show the actual value and restore edit functionality
+            setTimeout(() => {
+                element.textContent = displayText;
+                element.onclick = () => editField(fieldName);
+            }, 2000);
         }
 
         function cancelEdit(fieldName) {
@@ -2185,7 +2325,20 @@
                 saveProfileData();
                 
                 // Display the image
-                document.getElementById('profilePhoto').innerHTML = `<img src="${base64Image}" alt="Serafina">`;
+                const photoContainer = document.getElementById('profilePhoto');
+                photoContainer.innerHTML = `<img src="${base64Image}" alt="Serafina">`;
+                
+                // Show success badge
+                const badge = document.createElement('div');
+                badge.className = 'photo-success-badge';
+                badge.textContent = '✅';
+                photoContainer.parentElement.style.position = 'relative';
+                photoContainer.parentElement.appendChild(badge);
+                
+                // Remove badge after 2 seconds
+                setTimeout(() => {
+                    badge.remove();
+                }, 2000);
             };
             
             reader.onerror = function() {
