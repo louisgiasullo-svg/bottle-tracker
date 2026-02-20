@@ -1829,11 +1829,9 @@
                 const response = await fetch(GOOGLE_SCRIPT_URL);
                 const data = await response.json();
                 
-                if (data.success && data.feeds) {
-                    // Sort by timestamp descending (newest first)
-                    return data.feeds.sort((a, b) => {
-                        return new Date(b.timestamp) - new Date(a.timestamp);
-                    });
+                // Script returns array directly, not wrapped in {success, feeds}
+                if (Array.isArray(data)) {
+                    return data;
                 }
                 return [];
             } catch (error) {
@@ -2392,11 +2390,16 @@
         }
 
         async function loadProfileData() {
-            // Load photo from localStorage only
+            // Load photo, height, weight from localStorage
             const saved = localStorage.getItem('serafina_profile');
             if (saved) {
                 const localData = JSON.parse(saved);
+                profileData.height = localData.height || 23.5;
+                profileData.weight = localData.weight || 12;
                 profileData.photo = localData.photo;
+                
+                document.getElementById('babyHeight').textContent = `${profileData.height} in`;
+                document.getElementById('babyWeight').textContent = `${profileData.weight} lbs`;
                 
                 // Load photo
                 if (profileData.photo) {
@@ -2404,8 +2407,8 @@
                 }
             }
             
-            // Load height, weight, and doctor visits from Google Sheets (synced between devices)
-            await loadProfileFromSheets();
+            // Load doctor visits from Google Sheets (synced between devices)
+            await loadDoctorVisitsFromSheets();
             
             updateAge();
         }
@@ -2420,20 +2423,20 @@
         }
 
         function saveProfileData() {
-            // Save photo to localStorage only
+            // Save photo, height, weight to localStorage
             localStorage.setItem('serafina_profile', JSON.stringify({
+                height: profileData.height,
+                weight: profileData.weight,
                 photo: profileData.photo
             }));
             
-            // Save height, weight, and doctor visits to Google Sheets for syncing
-            saveProfileToSheets();
+            // Save doctor visits to Google Sheets for syncing
+            saveDoctorVisitsToSheets();
         }
 
-        async function saveProfileToSheets() {
+        async function saveDoctorVisitsToSheets() {
             const data = {
                 action: 'saveProfile',
-                height: profileData.height || 23.5,
-                weight: profileData.weight || 12,
                 lastVisit: profileData.lastVisit || '',
                 nextVisit: profileData.nextVisit || ''
             };
@@ -2448,26 +2451,15 @@
                     body: JSON.stringify(data)
                 });
             } catch (error) {
-                console.error('Error saving profile to Sheets:', error);
+                console.error('Error saving doctor visits:', error);
             }
         }
 
-        async function loadProfileFromSheets() {
+        async function loadDoctorVisitsFromSheets() {
             try {
                 const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=getProfile`);
                 const data = await response.json();
                 
-                // Load height and weight
-                if (data.height) {
-                    profileData.height = parseFloat(data.height);
-                    document.getElementById('babyHeight').textContent = `${profileData.height} in`;
-                }
-                if (data.weight) {
-                    profileData.weight = parseFloat(data.weight);
-                    document.getElementById('babyWeight').textContent = `${profileData.weight} lbs`;
-                }
-                
-                // Load doctor visits
                 if (data.lastVisit) {
                     profileData.lastVisit = data.lastVisit;
                     document.getElementById('lastVisit').textContent = formatVisitDate(data.lastVisit);
@@ -2477,7 +2469,7 @@
                     document.getElementById('nextVisit').textContent = formatVisitDate(data.nextVisit);
                 }
             } catch (error) {
-                console.error('Error loading profile from Sheets:', error);
+                console.error('Error loading doctor visits:', error);
             }
         }
 
