@@ -68,9 +68,12 @@ Features Serafina's personalized profile with photo upload, automatic age calcul
 - **Progressive Web App**: Add to home screen for a native app-like experience
 - **Responsive Design**: Works perfectly on any iPhone or Android device
 - **Collapsible Feed Log**: Starts collapsed by default, click header to expand full history
+- **Editable Feed Entries**: Edit any feed (amount, date, time) with inline editing
+- **Confirmation Dialogs**: Confirms before saving edits or clearing all data
 - **Organized Layout**: Dashboard → Profile → Stats → History → Manual Entry → Feed Log
 - **Visual Polish**: Gradient text effects, soft shadows, smooth transitions
 - **Chronological Sorting**: All feeds display most recent first
+- **Touch-Optimized**: Buttons sized for easy tapping on mobile (44px+ targets)
 
 ## How It Works
 
@@ -199,7 +202,24 @@ The app intelligently parses natural language input:
 - **Stats Dashboard**: Today's feeds, totals, last feed, time since last
 - **History Table**: Last 6 days with feed counts and totals (ml + oz)
 - **Feed Log**: Click header to expand/collapse, shows all feeds with ml + oz
-- **Delete Options**: Individual feed deletion or Clear All
+- **Edit Feeds**: Click "Edit" on any feed to modify amount, date, or time
+- **Delete Options**: Individual feed deletion or Clear All (both with confirmation)
+
+### Editing Feed Entries
+1. Click "Edit" button on any feed entry
+2. Modify amount (ml), date, or time as needed
+3. Click "Save" → Confirmation dialog appears
+4. Review changes and confirm
+5. Feed updates and dashboard refreshes
+
+**Confirmation shows:**
+- Amount (ml)
+- Date
+- Time
+
+**Cancel options:**
+- Click "Cancel" in edit form to discard changes
+- Click "Cancel" in confirmation to return to editing
 
 ### Understanding the Stats
 - **Age**: Auto-calculated as months/years with weeks below in parentheses
@@ -371,6 +391,24 @@ Both timezone and daily window can be customized by editing these values in the 
 - 🎨 Multiple theme options (not just pastel)
 - 📊 Dashboard widget customization
 - 🔊 Voice feedback after logging
+- ⏱️ Undo functionality for accidental edits
+- 📋 Bulk edit multiple feeds at once
+- 🔍 Search/filter feed log by date range
+
+## Recently Implemented Features
+
+### ✅ Feed Editing (v4.1)
+- Edit any feed entry with inline form
+- Modify amount, date, and time
+- Confirmation dialog before saving
+- Mobile-optimized touch targets
+
+### ✅ Enhanced UX (v4.0)
+- Profile cards collapsible (starts collapsed)
+- "Saved ✅" animation feedback
+- Photo upload success badge
+- Touch-optimized buttons (44px+ on mobile)
+- Smooth transitions and animations
 
 ## Contributing
 
@@ -386,11 +424,12 @@ Built with love (and severe sleep deprivation) for new parents everywhere. Speci
 
 ---
 
-**Version**: 4.0 (Baby Dashboard + Profile Management)  
+**Version**: 4.1 (Feed Editing + UX Enhancements)  
 **Last Updated**: February 2026  
 **Tested On**: iPhone 15 Pro, iOS 18+, Chrome & Safari  
 **Timezone**: Eastern Standard Time (EST/EDT)  
 **Daily Window**: 6:00 AM - 6:00 AM EST  
 **Theme**: Soft Pastel Baby with 10 Floating Clouds  
 **Dark Mode**: Auto-activates 8:00 PM - 6:00 AM EST  
-**Profile Features**: Photo upload, age calculation, growth tracking, appointments
+**Profile Features**: Photo upload, age calculation, growth tracking, appointments  
+**Feed Management**: Edit entries, confirmation dialogs, mobile-optimized controls
