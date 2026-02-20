@@ -1826,7 +1826,7 @@
 
         async function getLogs() {
             try {
-                const response = await fetch(GOOGLE_SCRIPT_URL);
+                const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=get`);
                 const data = await response.json();
                 
                 // Script returns array directly, not wrapped in {success, feeds}
